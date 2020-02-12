@@ -19,9 +19,8 @@ proc ds2;
 
 		method getDataStart(varchar(500) iUrl);
 			declare char(19) tableUpdated;
-
 			tableUpdated=SCB_Date.getSCBDate(iUrl);
-*put 'pxWebToSAS4: ' tableUpdated;
+*Hämta uppdateringsdatum för tabellen;
 		end;
 
 	endpackage ;
