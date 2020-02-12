@@ -1,0 +1,2 @@
+1.02
+Det gick inte att spara och namge var tabellen skulle sparas. Nu fungerar detta.
