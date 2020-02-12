@@ -16,7 +16,7 @@ proc ds2;
 
 		end;
 
-		method updateDate(varchar(500) iUrl) returns double;
+		method getSCBDate(varchar(500) iUrl) returns double;
 			declare double datum dtime;
 			declare varchar(100000) respons;
 			declare char(19) datetext;
@@ -27,7 +27,7 @@ put 'UpdateTableDate: ' datetext;
 *			dtime=dhms(datum,put(substr(datetext,12,2),2.),put(substr(datetext,15,2),2.),put(substr(datetext,18,2),2.));
 *		return dtime;
 return datetext;
-		end; *updateDate;;
+		end; *getSCBDate;;
 
 		method extractSCBDate(varchar(500) iURL, varchar(100000) respons) returns char(19);
 			declare varchar(500) tableName;
@@ -38,25 +38,22 @@ return datetext;
 
 			tableName=scan(iUrl,-1,'/');
 			updateDatum='';
-put 'extractSCBDate: ' tableName;
 			rc=j.createParser(respons);
-put rc;
 * Här börjar en loop som letar datum i resonsfilen;
-			do while (rc=0 or updateDatum ^= '');
+			do while (rc=0) or updateDatum ^= '');
 				j.getNextToken(rc, token, tokenType, parseFlags);
-put 'do while loop: ' token;
-/*				if (token='id') then do;
-put 'if id: ' token;
+				if token='id' then do;
 					j.getNextToken(rc, token, tokenType, parseFlags);
 					if token=tableName then do;
 						do until(token='updated');
 							j.getNextToken(rc, token, tokenType, parseFlags);
+
 						end;
 						j.getNextToken(rc, token, tokenType, parseFlags);
 						updateDatum=token;
 					end;
 				end;
-*/			end;
+			end;
 * Här slutar loopen;
 			return updateDatum;
 		end;*extractSCBDate;

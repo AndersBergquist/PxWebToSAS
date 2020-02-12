@@ -20,8 +20,8 @@ proc ds2;
 		method getDataStart(varchar(500) iUrl);
 			declare char(19) tableUpdated;
 
-			tableUpdated=SCB_Date.updateDate(iUrl);
-put 'pxWebToSAS4: ' tableUpdated;
+			tableUpdated=SCB_Date.getSCBDate(iUrl);
+*put 'pxWebToSAS4: ' tableUpdated;
 		end;
 
 	endpackage ;
