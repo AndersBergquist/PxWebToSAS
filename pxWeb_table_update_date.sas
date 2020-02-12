@@ -58,5 +58,14 @@ put 'UpdateTableDate: ' datetext;
 put 'extract SCB: ' updateDatum;
 			return updateDatum;
 		end;*extractSCBDate;
+
+
+		method getDBDate(varchar(40) fullTabellNamn) returns double;
+			declare double dbUpdated;
+
+			dbUpdated=1890639000-1000000;
+		return dbUpdated;
+		end;*getDBDate;
+
 	endpackage ;
 run;quit;
