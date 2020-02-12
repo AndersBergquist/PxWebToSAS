@@ -10,6 +10,7 @@ Uppgift:
 proc ds2;
 	package work.pxweb_UppdateTableDate / overwrite=yes;
 		declare package work.pxweb_GemensammaMetoder g();
+		declare double dbUpdated;
 		forward askSCB extractSCBDate;
 
 		method pxweb_UppdateTableDate();
@@ -20,11 +21,17 @@ proc ds2;
 			declare double datum dtime;
 			declare varchar(100000) respons;
 			declare char(19) datetext;
-			respons=g.getData(iURL);
-			datetext=extractSCBDate(iURL,respons);
-put 'UpdateTableDate: ' datetext;
-			datum=mdy(put(substr(datetext,6,2),2.),put(substr(datetext,9,2),2.),put(substr(datetext,1,4),4.));
-			dtime=dhms(datum,put(substr(datetext,12,2),2.),put(substr(datetext,15,2),2.),put(substr(datetext,18,2),2.));
+			declare varchar(150) catalogUrl;
+			catalogUrl=tranwrd(iUrl,scan(iUrl,-1,'/'),'');
+			respons=g.getData(catalogUrl);
+			if respons^='Error' then do;
+				datetext=extractSCBDate(iURL,respons);
+				datum=mdy(put(substr(datetext,6,2),2.),put(substr(datetext,9,2),2.),put(substr(datetext,1,4),4.));
+				dtime=dhms(datum,put(substr(datetext,12,2),2.),put(substr(datetext,15,2),2.),put(substr(datetext,18,2),2.));
+			end;
+			else do;
+				put 'getSCBDate: Något gick fel och processen kunde inte fortsätta';
+			end;
 		return dtime;
 		end; *getSCBDate;;
 
@@ -46,7 +53,6 @@ put 'UpdateTableDate: ' datetext;
 					if token=tableName then do;
 						do until(token='updated');
 							j.getNextToken(rc, token, tokenType, parseFlags);
-
 						end;
 						j.getNextToken(rc, token, tokenType, parseFlags);
 						updateDatum=token;
@@ -55,17 +61,26 @@ put 'UpdateTableDate: ' datetext;
 				end;
 			end;
 * Här slutar loopen;
-put 'extract SCB: ' updateDatum;
 			return updateDatum;
 		end;*extractSCBDate;
 
 
 		method getDBDate(varchar(40) fullTabellNamn) returns double;
-			declare double dbUpdated;
+			declare	package sqlstmt s();
+			declare varchar(93) sqlMax;
 
-			dbUpdated=1890639000-1000000;
+fullTabellNamn='SASUSER.BRPSYSLONAR';
+			dbUpdated=g.finnsTabell(scan(fullTabellNamn,1,'.'), scan(fullTabellNamn,2,'.'));
+			if dbUpdated=1 then do;
+				sqlMax='select max(UPPDATERAT_DTTM) as UPPDATERAT_DTTM from ' || fullTabellNamn;
+				s.prepare(sqlMax);
+				s.execute();
+				s.bindresults([dbUpdated]);
+				s.fetch();
+			end;
 		return dbUpdated;
 		end;*getDBDate;
 
 	endpackage ;
 run;quit;
+

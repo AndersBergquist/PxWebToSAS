@@ -2,6 +2,9 @@
 Program: pxwebToSAS4
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 0.1
+
+- output:
+	1. Sätter makrot &update till 1 om uppdatering finns och 0 om det inte finns.
 ***********************************/
 
 
@@ -28,21 +31,19 @@ proc ds2;
 		method getDataStart(varchar(500) iUrl, varchar(8) SASLib, varchar(32) SASTabell);
 			declare double tableUpdated dbUpdate;
 			declare varchar(41) fullTabellNamn;
+			declare integer ud;
 			fullTabellNamn=SASLib || '.' || SASTabell;
 			tableUpdated=SCB_Date.getSCBDate(iUrl);
 			dbUpdate=SCB_Date.getDBDate(fullTabellNamn);
-put 'SCB= ' tableUpdated;
-put 'SAS= ' dbUpdate;
+
 			if dbUpdate < tableUpdated then do;
 put 'Tabellen ska uppdateras';
+				ud=1;
 			end;
 			else do;
 				put 'Det finns ingen uppdatering';
+				ud=0;
 			end;
 		end;
-
 	endpackage ;
 run;quit;
-/*
-2019-03-21T09:30:00
-*/

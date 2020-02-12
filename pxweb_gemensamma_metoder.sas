@@ -6,12 +6,16 @@ Uppgift:
 - Samla metoder som används av flera packet.
 Innehåller:
 - getData; getData(iURL), hämtar en responsfil från pxWeb med hjälp av Get.
+- finnsTabell, finnsTabell(iLib, iTabell), returnerar 0 om tabell ej finns och 1 om tabell finns.
 ***********************************/
 
 
 proc ds2;
 	package work.pxweb_GemensammaMetoder / overwrite=yes;
 	declare package http pxwebContent();
+	declare varchar(8) lib;
+	declare varchar(32) tabell;
+	declare integer antal;
 
 	method pxweb_GemensammaMetoder();
 
@@ -22,8 +26,7 @@ proc ds2;
 	declare integer sc rc;
 	declare varchar(500) catalogURL;
 
-		catalogUrl=tranwrd(iUrl,scan(iUrl,-1,'/'),'');
-		pxwebContent.createGetMethod(catalogUrl);
+		pxwebContent.createGetMethod(iUrl);
 		pxwebContent.executeMethod();
 
 		sc=pxwebContent.getStatusCode();
@@ -35,4 +38,17 @@ proc ds2;
 	   end;
 	return respons;
 	end;* getData;
+
+	method finnsTabell(varchar(8) iLib, varchar(32) iTabell) returns integer;
+		declare package sqlstmt s('select count(*) as antal from dictionary.tables where TABLE_SCHEM=? AND table_name=?',[lib tabell]);
+
+		tabell=upcase(iTabell);
+		lib=upcase(iLib);
+		s.execute();
+		s.bindresults([antal]);
+		s.fetch();
+		if antal > 0 then antal=1; else antal=0;
+	return antal;
+	end;*finnsTabell;
+
 run;quit;
