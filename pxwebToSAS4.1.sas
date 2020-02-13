@@ -11,6 +11,7 @@ Version: 0.1
 proc ds2;
 	package work.pxWebToSAS4 / overwrite=yes;
 		declare package work.pxweb_UppdateTableDate SCB_Date();
+		declare package work.pxweb_makeJsonFraga SCB_fraga();
 
 		forward getDataStart;
 		method pxwebtosas4();
@@ -38,6 +39,7 @@ proc ds2;
 
 			if dbUpdate < tableUpdated then do;
 put 'Tabellen ska uppdateras';
+				SCB_fraga.skapaFraga(iUrl);
 				ud=1;
 			end;
 			else do;
