@@ -5,11 +5,12 @@ Version: 0.1
 Uppgift:
 - Skapar json-fråga till datahämtning
 ***********************************/
-
-
 proc ds2;
 	package work.pxweb_makeJsonFraga / overwrite=yes;
 		declare package work.pxweb_GemensammaMetoder g();
+		declare integer radNr;
+		declare varchar(250) title code text values valueTexts elimination "time";
+
 		forward getJsonMeta parseJsonMeta;
 		method pxweb_makeJsonFraga();
 		end;
@@ -28,11 +29,22 @@ proc ds2;
 
 		method parseJsonMeta(varchar(25000) iRespons);
 			declare package hash parsMeta();
-			declare package hiter hparsMeta(parsMeta);
+			declare package hiter hiparsMeta(parsMeta);
 			declare package hash metaData();
 			declare package json j();
-			declare varchar(250) token title code text values valueTexts;
-			declare integer rc tokenType parseFlags radNr;
+			declare varchar(250) token;
+			declare integer rc tokenType parseFlags;
+
+			parsMeta.keys([radNr]);
+			parsMeta.data([title, code, text, values, valueTexts]);
+			parsMeta.ordered('A');
+			parsMeta.defineDone();
+
+			metaData.keys([code, values]);
+			metaData.data([title, code, text, values, valueTexts, elimination, "time"]);
+			metaData.ordered('A');
+			metaData.defineDone();
+
 
 			rc=j.createparser(iRespons);
 			j.getNextToken(rc,token,tokenType,parseFlags);
@@ -44,6 +56,8 @@ proc ds2;
 				if token='variables' then do;
 					j.getNextToken(rc,token,tokenType,parseFlags);
 					do until(j.ISRIGHTBRACKET(tokenType));
+						elimination='false';
+						"time"='false';
 						do until(j.ISRIGHTBRACE(tokenType));
 							if token='code' then do;
 								j.getNextToken(rc,token,tokenType,parseFlags);
@@ -53,16 +67,24 @@ proc ds2;
 								j.getNextToken(rc,token,tokenType,parseFlags);
 								text=token;
 							end;
+							else if token='elimination' then do;
+								j.getNextToken(rc,token,tokenType,parseFlags);
+								elimination=token;
+							end;
+							else if token='time' then do;
+								j.getNextToken(rc,token,tokenType,parseFlags);
+								"time"=token;
+							end;
 							else if token='values' then do;
 								radNr=0;
 								j.getNextToken(rc,token,tokenType,parseFlags);
 								do until(j.isrightbracket(tokenType));
-									if j.isleftbracket(token) then do;
+									if j.isleftbracket(tokenType) then do;
 									end;
 									else do;
 										radNr=radNr+1;
 										values=token;
-	*Add till hash;
+										parsMeta.ref([radNr],[title, code, text, values, valueTexts]);
 									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
 								end;
@@ -71,25 +93,28 @@ proc ds2;
 								radNr=0;
 								j.getNextToken(rc,token,tokenType,parseFlags);
 								do until(j.isrightbracket(tokenType));
-									if j.isleftbracket(token) then do;
+									if j.isleftbracket(tokenType) then do;
 									end;
 									else do;
 										radNr=radNr+1;
+										parsMeta.find([radNr],[title, code, text, values, valueTexts]);
 										valueTexts=token;
-	*Add till hash;
-									end;		
+										parsMeta.replace([radNr],[title, code, text, values, valueTexts]);
+									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
 								end;
 							end;
 							j.getNextToken(rc,token,tokenType,parseFlags);
 						end;
-		*Slinga uppdatear metahashen;
+						do until(hiparsmeta.next([title, code, text, values, valueTexts]));
+							metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
+						end;
+						parsmeta.clear();
 						j.getNextToken(rc,token,tokenType,parseFlags);
 					end;
 				end;
 				j.getNextToken(rc,token,tokenType,parseFlags);
 			end;
-
 		end;*parseJsonMeta;
 	endpackage;
 run;quit;
