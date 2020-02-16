@@ -9,7 +9,10 @@ proc ds2;
 	package work.pxweb_getMetaData / overwrite=yes;
 		declare package work.pxweb_GemensammaMetoder g();
 		declare package hash metaData();
-		declare integer radNr;
+		declare package hiter hi_metaData(metaData);
+		declare package hash h_dataStorlek();
+		declare package hiter hi_dataStorlek(h_dataStorlek);
+		declare integer radNr antal;
 		declare varchar(250) title code text values valueTexts elimination "time";
 
 		forward getJsonMeta parseJsonMeta printData;
@@ -22,11 +25,12 @@ proc ds2;
 			parseJsonMeta(respons);
 		end;*skapaFraga;
 
+*Fundera om nedanstående metod behövs;
 		method getJsonMeta(varchar(500) iUrl) returns varchar(25000);
 			declare varchar(25000) respons;
 			respons=g.getData(iUrl);
 		return respons;	
-		end;*getMeta;
+		end;*getJsonMeta;
 
 		method printMetaData(varchar(40) libTable);
 			printData(libTable);
@@ -40,6 +44,24 @@ proc ds2;
 
 		method printData(varchar(40) libTable);
 			metaData.output(libTable);
+		end;
+
+		method getAntalCeller() returns integer;
+			declare integer antalCeller;
+			antalCeller=1;
+			hi_dataStorlek.first([code,radNr]);
+			do until(hi_dataStorlek.next([code,radNr]));
+				antalCeller=antalCeller*radNr;
+			end;
+			return antalCeller;
+		end;
+
+		method getAntalFragor() returns integer;
+			declare integer antalCeller antalFragor;
+
+			antalCeller=getAntalCeller();
+			antalFragor=round((antalCeller/50000)+0.5);
+			return antalFragor;
 		end;
 
 		method parseJsonMeta(varchar(25000) iRespons);
@@ -59,6 +81,9 @@ proc ds2;
 			metaData.ordered('A');
 			metaData.defineDone();
 
+			h_dataStorlek.keys([code]);
+			h_dataStorlek.data([code antal]);
+			h_dataStorlek.defineDone();
 
 			rc=j.createparser(iRespons);
 			j.getNextToken(rc,token,tokenType,parseFlags);
@@ -120,9 +145,11 @@ proc ds2;
 							end;
 							j.getNextToken(rc,token,tokenType,parseFlags);
 						end;
+						hiparsmeta.first([title, code, text, values, valueTexts]);
 						do until(hiparsmeta.next([title, code, text, values, valueTexts]));
 							metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
 						end;
+						h_dataStorlek.ref([code],[code,radNr]);
 						parsmeta.clear();
 						j.getNextToken(rc,token,tokenType,parseFlags);
 					end;
