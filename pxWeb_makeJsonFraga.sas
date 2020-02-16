@@ -1,21 +1,21 @@
 /****************************************
-Program: pxweb_makeJsonFraga.sas
+Program: pxweb_getMetaData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 0.1
 Uppgift:
 - Skapar json-fråga till datahämtning
 ***********************************/
 proc ds2;
-	package work.pxweb_makeJsonFraga / overwrite=yes;
+	package work.pxweb_getMetaData / overwrite=yes;
 		declare package work.pxweb_GemensammaMetoder g();
 		declare integer radNr;
 		declare varchar(250) title code text values valueTexts elimination "time";
 
 		forward getJsonMeta parseJsonMeta;
-		method pxweb_makeJsonFraga();
+		method pxweb_getMetaData();
 		end;
 
-		method skapaFraga(varchar(500) iUrl);
+		method getData(varchar(500) iUrl);
 			declare varchar(25000) respons;
 			respons=getJsonMeta(iUrl);
 			parseJsonMeta(respons);
