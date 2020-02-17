@@ -19,11 +19,12 @@ proc ds2;
 		end;
 
 		method getData(varchar(500) inUrl);
-			declare varchar(23) SASTabell;
+			declare varchar(41) SASTabell;
 			declare integer maxCells;
 			maxCells=50000;
 
 			SASTabell=scan(inUrl, -1, '/');
+*Lägg till en check som hanter om tabellen skrivs sasuser.mintabell;
 			getDataStart(inUrl, 'work', SASTabell, maxCells);
 		end;
 
@@ -37,13 +38,14 @@ proc ds2;
 			declare double tableUpdated dbUpdate;
 			declare varchar(41) fullTabellNamn;
 			declare integer ud;
-			fullTabellNamn=SASLib || '.' || SASTabell;
+			fullTabellNamn=SASLib || '.' || SASTabell;*
+fullTabellNamn='SASUSER.FODDAK';
 			tableUpdated=SCB_Date.getSCBDate(iUrl);
 			dbUpdate=SCB_Date.getDBDate(fullTabellNamn);
-
 			if dbUpdate < tableUpdated then do;
 put 'Tabellen ska uppdateras';
-				SCB_GetJsonFraga.skapaFraga(iUrl, maxCells);
+				
+				SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn);
 				ud=1;
 			end;
 			else do;
