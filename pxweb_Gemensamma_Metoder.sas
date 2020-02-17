@@ -51,7 +51,7 @@ proc ds2;
 		return antal;
 		end;*finnsTabell;
 
-		method getSistaTid(varchar(40) fullTabellNamn) returns varchar(32);
+		method getSenasteTid(varchar(40) fullTabellNamn) returns varchar(32);
 			declare	package sqlstmt s();
 			declare varchar(93) sqlMax;
 			declare integer tabellFinns;

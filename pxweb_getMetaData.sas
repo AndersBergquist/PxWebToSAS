@@ -19,10 +19,10 @@ proc ds2;
 		method pxweb_getMetaData();
 		end;
 
-		method getData(varchar(500) iUrl);
+		method getData(varchar(500) iUrl, varchar(41) fullTabellNamn);
 			declare varchar(25000) respons;
 			respons=g.getData(iUrl);
-			parseJsonMeta(respons);
+			parseJsonMeta(respons, fullTabellNamn);
 		end;*skapaFraga;
 
 		method printMetaData(varchar(40) libTable);
@@ -63,12 +63,15 @@ proc ds2;
 			return antalFragor;
 		end;
 
-		method parseJsonMeta(varchar(25000) iRespons);
+		method parseJsonMeta(varchar(25000) iRespons, varchar(41) fullTabellNamn);
 			declare package hash parsMeta();
 			declare package hiter hiparsMeta(parsMeta);
 			declare package json j();
 			declare varchar(250) token;
+			declare varchar(25) senasteTid;
 			declare integer rc tokenType parseFlags;
+
+			senasteTid=g.getSenasteTid(fullTabellNamn);
 
 			parsMeta.keys([radNr]);
 			parsMeta.data([title, code, text, values, valueTexts]);
@@ -146,10 +149,15 @@ proc ds2;
 						end;
 						hiparsmeta.first([title, code, text, values, valueTexts]);
 						do until(hiparsmeta.next([title, code, text, values, valueTexts]));
-							metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
+							if("time"='true' and (senasteTid='' or senasteTid > values)) then do;
+								metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
+							end;
+							else if "time" ^= 'true' then do;
+								metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
+							end;
 						end;
 						h_dataStorlek.ref([code],[code,radNr]);
-put code radNr;
+*put code radNr;
 						parsmeta.clear();
 						j.getNextToken(rc,token,tokenType,parseFlags);
 					end;
