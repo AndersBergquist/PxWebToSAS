@@ -3,7 +3,7 @@ Program: pxweb_getMetaData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 0.1
 Uppgift:
-- Skapar json-frï¿½ga till datahï¿½mtning
+- Skapar json-fråga till datahämtning
 ***********************************/
 proc ds2;
 	package work.pxweb_getMetaData / overwrite=yes;
@@ -12,19 +12,21 @@ proc ds2;
 		declare package hiter hi_metaData(metaData);
 		declare package hash h_dataStorlek();
 		declare package hiter hi_dataStorlek(h_dataStorlek);
-		declare integer radNr antal;
-		declare varchar(250) title code text values valueTexts elimination "time";
+		declare integer radNr antal antalCeller cellerPerValue;
+		declare varchar(250) title code text values valueTexts elimination "time" subCode;
+		declare varchar(25000) subFraga;
 
 		forward getJsonMeta parseJsonMeta printData;
 		method pxweb_getMetaData();
 		end;
 
-		method getData(varchar(500) iUrl, varchar(41) fullTabellNamn);
+		method getData(varchar(500) iUrl, integer maxCells, varchar(41) fullTabellNamn);
 			declare varchar(25000) respons;
 			respons=g.getData(iUrl);
-			parseJsonMeta(respons, fullTabellNamn);
+			parseJsonMeta(respons, maxCells, fullTabellNamn);
 		end;*skapaFraga;
 
+** Skriver ut metadatatabellen, start **;
 		method printMetaData(varchar(40) libTable);
 			printData(libTable);
 		end;
@@ -38,6 +40,7 @@ proc ds2;
 		method printData(varchar(40) libTable);
 			metaData.output(libTable);
 		end;
+** Skriver ut metadatatabellen, slut **;
 
 		method getAntalCodes() returns integer;
 			declare integer antalCodes;
@@ -63,15 +66,16 @@ proc ds2;
 			return antalFragor;
 		end;
 
-		method parseJsonMeta(varchar(25000) iRespons, varchar(41) fullTabellNamn);
+		method parseJsonMeta(varchar(25000) iRespons, integer maxCells, varchar(41) fullTabellNamn);
 			declare package hash parsMeta();
 			declare package hiter hiparsMeta(parsMeta);
 			declare package json j();
 			declare varchar(250) token;
 			declare varchar(25) senasteTid;
-			declare integer rc tokenType parseFlags;
+			declare integer rc tokenType parseFlags tmpCeller divisor;
 
 			senasteTid=g.getSenasteTid(fullTabellNamn);
+			antalCeller=1;
 
 			parsMeta.keys([radNr]);
 			parsMeta.data([title, code, text, values, valueTexts]);
@@ -84,7 +88,7 @@ proc ds2;
 			metaData.defineDone();
 
 			h_dataStorlek.keys([code]);
-			h_dataStorlek.data([code antal]);
+			h_dataStorlek.data([code antal, antalCeller]);
 			h_dataStorlek.defineDone();
 
 			rc=j.createparser(iRespons);
@@ -149,15 +153,35 @@ proc ds2;
 						end;
 						hiparsmeta.first([title, code, text, values, valueTexts]);
 						do until(hiparsmeta.next([title, code, text, values, valueTexts]));
-							if("time"='true' and (senasteTid='' or senasteTid > values)) then do;
+							if("time"='true' and (senasteTid<values)) then do;* and (senasteTid='' or senasteTid > values)) then do;
 								metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
 							end;
 							else if "time" ^= 'true' then do;
 								metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
 							end;
 						end;
-						h_dataStorlek.ref([code],[code,radNr]);
-*put code radNr;
+** Beräknar tabell som visar antal värden en variable ska ha i varje fråga för att inte gå över maxCells (50000), start;
+						antalCeller=radNr*antalCeller;
+						if antalCeller=0 then do;
+							cellerPerValue=1;
+							h_dataStorlek.ref([code],[code,radNr,cellerPerValue]);
+						end;
+						else if antalCeller<=maxCells then do;
+							cellerPerValue=radNr;
+							h_dataStorlek.ref([code],[code,radNr,cellerPerValue]);
+						end;
+						else if antalCeller> maxCells then do;
+							antalCeller=antalCeller/radNr;
+							divisor=1;
+							do until(tmpCeller<=50000);
+								divisor=divisor+1;
+								tmpCeller=round((radNr/divisor)+0.5)*(antalCeller);
+							end;
+								cellerPerValue=radNr/divisor;
+								h_dataStorlek.ref([code],[code,radNr,cellerPerValue]);
+								antalCeller=0;
+						end;
+** Beräknar tabell som visar antal värden en variable ska ha i varje fråga för att inte gå över maxCells (50000), slut;
 						parsmeta.clear();
 						j.getNextToken(rc,token,tokenType,parseFlags);
 					end;
@@ -165,5 +189,68 @@ proc ds2;
 				j.getNextToken(rc,token,tokenType,parseFlags);
 			end;
 		end;*parseJsonMeta;
+
+		method skapaSubFraga();
+			declare package hash h_subFragor();
+			declare varchar(25000) stubFraga;
+			declare integer rundaNr;
+
+ 			h_subFragor.keys([subCode, subFraga]);
+			h_subFragor.data([subCode, subFraga]);
+			h_subFragor.ordered('A');
+			h_subFragor.defineDone();
+
+			hi_dataStorlek.first([subCode,antal,cellerPerValue]);
+			do until(hi_dataStorlek.next([subCode,antal,cellerPerValue]));
+				if antal=cellerPerValue then do;
+					subFraga='{"code":' || subCode || '", "selection":{"filter":"all", "values":["*"]}}';
+					h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
+				end;
+				else do;
+					if cellerPerValue=1 then do;
+						hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
+						do until(hi_metaData.next([title, code, text, values, valueTexts, elimination, "time"]));
+							if subCode=code then do;
+								stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":["';
+								subFraga=stubFraga || values || '"]';
+								subFraga=subFraga || '}}';
+								h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
+							end;
+						end;
+					end;
+					else do;
+						rundaNr=0;
+						hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
+						stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":"';
+						do until(hi_metaData.next([title, code, text, values, valueTexts, elimination, "time"]));
+							if subCode=code then do;
+								rundaNr=rundaNr+1;
+								if rundaNr=cellerPerValue then do;
+									stubFraga=stubFraga || ', ["' || values || '"]}}';
+									subFraga=stubFraga;
+									h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
+									rundaNr=0;
+									stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":"';
+								end;
+								else if rundaNr=1 then do;
+									stubFraga=stubFraga || '["' || values || '"]';
+								end;
+								else do;
+									stubFraga=stubFraga || ', ["' || values || '"]';
+								end;
+							end;
+							if rundaNr=cellerPerValue then do;
+								stubFraga=stubFraga || ', ["' || values || '"]';
+								h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
+								rundaNr=0;
+								stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":"';
+							end;
+						end;
+					end;
+				end;
+			end;
+h_subFragor.output('work.subfraga');
+		end;*skapaSubFraga;
+
 	endpackage;
 run;quit;

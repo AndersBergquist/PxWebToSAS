@@ -54,7 +54,7 @@ proc ds2;
 		method getSenasteTid(varchar(40) fullTabellNamn) returns varchar(32);
 			declare	package sqlstmt s();
 			declare varchar(93) sqlMax;
-			declare integer tabellFinns;
+			declare integer tabellFinns rc;
 
 			tabellFinns=finnsTabell(scan(fullTabellNamn,1,'.'), scan(fullTabellNamn,2,'.'));
 			if tabellFinns=1 then do;
@@ -62,8 +62,12 @@ proc ds2;
 				s.prepare(sqlMax);
 				s.execute();
 				s.bindresults([tid]);
-				s.fetch();
+				rc=s.fetch();
 			end;
+			else do;
+				tid=0;
+			end;
+
 		return tid;
 		end;*getDBDate;
 
