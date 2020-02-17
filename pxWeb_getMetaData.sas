@@ -21,16 +21,9 @@ proc ds2;
 
 		method getData(varchar(500) iUrl);
 			declare varchar(25000) respons;
-			respons=getJsonMeta(iUrl);
+			respons=g.getData(iUrl);
 			parseJsonMeta(respons);
 		end;*skapaFraga;
-
-*Fundera om nedanstående metod behövs;
-		method getJsonMeta(varchar(500) iUrl) returns varchar(25000);
-			declare varchar(25000) respons;
-			respons=g.getData(iUrl);
-		return respons;	
-		end;*getJsonMeta;
 
 		method printMetaData(varchar(40) libTable);
 			printData(libTable);
@@ -44,6 +37,12 @@ proc ds2;
 
 		method printData(varchar(40) libTable);
 			metaData.output(libTable);
+		end;
+
+		method getAntalCodes() returns integer;
+			declare integer antalCodes;
+			antalCodes=h_datastorlek.num_items;
+			return antalCodes;
 		end;
 
 		method getAntalCeller() returns integer;
@@ -150,6 +149,7 @@ proc ds2;
 							metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
 						end;
 						h_dataStorlek.ref([code],[code,radNr]);
+put code radNr;
 						parsmeta.clear();
 						j.getNextToken(rc,token,tokenType,parseFlags);
 					end;

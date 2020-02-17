@@ -13,9 +13,12 @@ proc ds2;
 		method pxweb_makeJsonFraga();
 		end;
 
-		method skapaFraga(varchar(500) iUrl);
-*			getMetaData.getData(iURL);
-*			getMetaData.getAntalFragor();
+		method skapaFraga(varchar(500) iUrl, integer maxCells);
+			declare integer antalCodes;
+			getMetaData.getData(iURL);
+			getMetaData.output('work.pxWeb_meta');
+			antalCodes=getMetaData.getAntalCodes();
+put 'antalCodes=' antalCodes;
 
 /* Att göra:
 		1. Skapa en optimala kombinationen av variabler i frågorna.

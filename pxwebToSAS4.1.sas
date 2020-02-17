@@ -20,16 +20,20 @@ proc ds2;
 
 		method getData(varchar(500) inUrl);
 			declare varchar(23) SASTabell;
+			declare integer maxCells;
+			maxCells=50000;
 
 			SASTabell=scan(inUrl, -1, '/');
-			getDataStart(inUrl, 'work', SASTabell);
+			getDataStart(inUrl, 'work', SASTabell, maxCells);
 		end;
 
 		method getData(varchar(500) inUrl, varchar(8) SASLib, varchar(32) SASTabell);
-			getDataStart(inUrl, SASLib, SASTabell);
+			declare integer maxCells;
+			maxCells=50000;
+			getDataStart(inUrl, SASLib, SASTabell, maxCells);
 		end;
 
-		method getDataStart(varchar(500) iUrl, varchar(8) SASLib, varchar(32) SASTabell);
+		method getDataStart(varchar(500) iUrl, varchar(8) SASLib, varchar(32) SASTabell, integer maxCells);
 			declare double tableUpdated dbUpdate;
 			declare varchar(41) fullTabellNamn;
 			declare integer ud;
@@ -39,7 +43,7 @@ proc ds2;
 
 			if dbUpdate < tableUpdated then do;
 put 'Tabellen ska uppdateras';
-				SCB_GetJsonFraga.skapaFraga(iUrl);
+				SCB_GetJsonFraga.skapaFraga(iUrl, maxCells);
 				ud=1;
 			end;
 			else do;
