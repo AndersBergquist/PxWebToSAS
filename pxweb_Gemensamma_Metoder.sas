@@ -1,4 +1,4 @@
-
+﻿
 /****************************************
 Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se

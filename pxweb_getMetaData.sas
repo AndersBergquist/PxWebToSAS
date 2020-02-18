@@ -1,9 +1,17 @@
-/****************************************
+Ôªø/****************************************
 Program: pxweb_getMetaData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 0.1
 Uppgift:
-- Skapar json-frÂga till datah‰mtning
+- H√§mtar metadata fr√•n SCB/PX-Web.
+F√∂ljande externa metoder finns;
+- metaDataFirst(in_out varchar(250) io_title, in_out varchar(250) io_code, in_out varchar(250) io_text, in_out varchar(250) io_values, in_out varchar(250) io_valueTexts, in_out varchar(250) io_elimination, in_out varchar(250) io_time)
+- metaDataNext(in_out varchar(250) io_title, in_out varchar(250) io_code, in_out varchar(250) io_text, in_out varchar(250) io_values, in_out varchar(250) io_valueTexts, in_out varchar(250) io_elimination, in_out varchar(250) io_time)
+- metaDataNumItem() returns integer
+- dataStorlekFirst(in_out varchar(250) io_code, in_out integer io_radNr, in_out integer io_CellerPerValue)
+- dataStorlekNext(in_out varchar(250) io_code, in_out integer io_radNr, in_out integer io_CellerPerValue)
+- hi_dataStorlek.next([code, radNr,CellerPerValue])
+
 ***********************************/
 proc ds2;
 	package work.pxweb_getMetaData / overwrite=yes;
@@ -160,7 +168,7 @@ proc ds2;
 								metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
 							end;
 						end;
-** Ber‰knar tabell som visar antal v‰rden en variable ska ha i varje frÂga fˆr att inte gÂ ˆver maxCells (50000), start;
+** Ber√§knar tabell som visar antal v√§rden en variable ska ha i varje fr√•ga f√∂r att inte g√• √∂ver maxCells (50000), start;
 						antalCeller=radNr*antalCeller;
 						if antalCeller=0 then do;
 							cellerPerValue=1;
@@ -177,11 +185,11 @@ proc ds2;
 								divisor=divisor+1;
 								tmpCeller=round((radNr/divisor)+0.5)*(antalCeller);
 							end;
-								cellerPerValue=radNr/divisor;
-								h_dataStorlek.ref([code],[code,radNr,cellerPerValue]);
-								antalCeller=0;
+							cellerPerValue=radNr/divisor;
+							h_dataStorlek.ref([code],[code,radNr,cellerPerValue]);
+							antalCeller=0;
 						end;
-** Ber‰knar tabell som visar antal v‰rden en variable ska ha i varje frÂga fˆr att inte gÂ ˆver maxCells (50000), slut;
+** Ber√§knar tabell som visar antal v√§rden en variable ska ha i varje fr√•ga f√∂r att inte g√• √∂ver maxCells (50000), slut;
 						parsmeta.clear();
 						j.getNextToken(rc,token,tokenType,parseFlags);
 					end;
@@ -190,67 +198,56 @@ proc ds2;
 			end;
 		end;*parseJsonMeta;
 
-		method skapaSubFraga();
-			declare package hash h_subFragor();
-			declare varchar(25000) stubFraga;
-			declare integer rundaNr;
-
- 			h_subFragor.keys([subCode, subFraga]);
-			h_subFragor.data([subCode, subFraga]);
-			h_subFragor.ordered('A');
-			h_subFragor.defineDone();
-
-			hi_dataStorlek.first([subCode,antal,cellerPerValue]);
-			do until(hi_dataStorlek.next([subCode,antal,cellerPerValue]));
-				if antal=cellerPerValue then do;
-					subFraga='{"code":' || subCode || '", "selection":{"filter":"all", "values":["*"]}}';
-					h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
-				end;
-				else do;
-					if cellerPerValue=1 then do;
-						hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
-						do until(hi_metaData.next([title, code, text, values, valueTexts, elimination, "time"]));
-							if subCode=code then do;
-								stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":["';
-								subFraga=stubFraga || values || '"]';
-								subFraga=subFraga || '}}';
-								h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
-							end;
-						end;
-					end;
-					else do;
-						rundaNr=0;
-						hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
-						stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":"';
-						do until(hi_metaData.next([title, code, text, values, valueTexts, elimination, "time"]));
-							if subCode=code then do;
-								rundaNr=rundaNr+1;
-								if rundaNr=cellerPerValue then do;
-									stubFraga=stubFraga || ', ["' || values || '"]}}';
-									subFraga=stubFraga;
-									h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
-									rundaNr=0;
-									stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":"';
-								end;
-								else if rundaNr=1 then do;
-									stubFraga=stubFraga || '["' || values || '"]';
-								end;
-								else do;
-									stubFraga=stubFraga || ', ["' || values || '"]';
-								end;
-							end;
-							if rundaNr=cellerPerValue then do;
-								stubFraga=stubFraga || ', ["' || values || '"]';
-								h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
-								rundaNr=0;
-								stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":"';
-							end;
-						end;
-					end;
-				end;
-			end;
-h_subFragor.output('work.subfraga');
-		end;*skapaSubFraga;
+*** Metoder f√∂r att h√§mta data ur hashtabellerna. start;
+** metaData, start;
+		method metaDataFirst(in_out varchar io_title, in_out varchar io_code, in_out varchar io_text, in_out varchar io_values, in_out varchar io_valueTexts, in_out varchar io_elimination, in_out varchar io_time);
+			hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
+			io_title=title;
+			io_code=code;
+			io_text=text;
+			io_values=values;
+			io_valueTexts=valueTexts;
+			io_elimination=elimination;
+			io_time="time";
+		end;
+		method metaDataNext(in_out varchar io_title, in_out varchar io_code, in_out varchar io_text, in_out varchar io_values, in_out varchar io_valueTexts, in_out varchar io_elimination, in_out varchar io_time);
+		declare integer rc;
+			hi_metaData.next([title, code, text, values, valueTexts, elimination, "time"]);
+			io_title=title;
+			io_code=code;
+			io_text=text;
+			io_values=values;
+			io_valueTexts=valueTexts;
+			io_elimination=elimination;
+			io_time="time";
+		end;
+		method metaDataNumItem() returns integer;
+			declare integer numItem;
+				numItem=metaData.num_items;
+			return numItem;
+		end;
+** metaData, start;
+** dataStorlek, start;
+		method dataStorlekFirst(in_out varchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
+			hi_dataStorlek.first([code, radNr,CellerPerValue]);
+			io_code=code;
+			io_radNr=radNr;
+			io_CellerPerValue=CellerPerValue;
+		end;
+		method dataStorlekNext(in_out varchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
+		declare integer rc;
+			hi_dataStorlek.next([code, radNr,CellerPerValue]);
+		io_code=code;
+			io_radNr=radNr;
+			io_CellerPerValue=CellerPerValue;
+		end;
+		method dataStorlekNumItem() returns integer;
+			declare integer numItem;
+				numItem=h_dataStorlek.num_items;
+			return numItem;
+		end;
+** datastorlek, slut;
+*** Metoder f√∂r att h√§mta data ur hashtabellerna. slut;
 
 	endpackage;
 run;quit;
