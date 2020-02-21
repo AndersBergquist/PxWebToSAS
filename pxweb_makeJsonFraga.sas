@@ -10,9 +10,12 @@ proc ds2;
 		declare package work.pxweb_GemensammaMetoder g();
 		declare package work.pxweb_getMetaData getMetaData();
 		declare package hash h_subFragor();
+		declare package hash h_jsonFragor();
+		declare package hiter hi_jsonFragor(h_jsonFragor);
 		declare varchar(250) subCode;
-		declare varchar(25000) subFraga;
-		forward skapaSubFraga skapaFraga skapaFragaHelper;
+		declare varchar(1000) subFraga;
+		declare varchar(10000) jsonFraga;
+		forward skapaSubFraga skapaFragehash skapaFrageHashHelper skapaFrageHashHelper2;
 
 		method pxweb_makeJsonFraga();
 		end;
@@ -21,23 +24,50 @@ proc ds2;
 			declare integer antalCodes;
 			getMetaData.getData(iURL, maxCells, fullTabellNamn);
 			skapaSubFraga();
-*			getMetaData.printMetaData('work.pxWeb_meta');
-*			antalCodes=getMetaData.getAntalCodes();
-*put 'antalCodes=' antalCodes;
-
-/* Att g�ra:
-		1. Skapa en optimala kombinationen av variabler i fr�gorna.
-		2. Skapa en hash-lista med fr�gor.
-		3. Hitta p� ett s�tt att exportera hash-listan utan tabell, om det g�r.
-*/
+			skapaFragehash();
+*h_jsonFragor.output('work.jsonFragor');
 		end;
 
-		method skapaFraga();
-			skapaFragaHelper();
+		method skapaFragehash();
+			declare integer maxDeep;
+
+			h_jsonFragor.keys([jsonFraga]);
+			h_jsonFragor.data([jsonFraga]);
+			h_jsonFragor.defineDone();;
+			
+			maxDeep=getMetaData.getAntalCodes();
+			skapaFrageHashHelper(1,maxDeep,'');
 		end;
 
-		method skapaFragaHelper();
-
+		method skapaFrageHashHelper(int deep, int maxDeep, varchar(10000) qstring);
+			declare varchar(1000) v_qstring[500];
+			declare varchar(10000) local_qstring;
+			declare integer AntalFragor rc i k;
+			subCode=getMetaData.getLevelCode(deep);
+        ** Läser in frågorna till vektor. Start **;
+			antalFragor=0;
+			rc=h_subFragor.find([subCode],[subCode, subFraga]);
+			do while(rc=0);
+				antalFragor=antalFragor+1;
+				v_qstring[antalFragor]=subFraga;
+				rc=h_subFragor.find_next([subCode, subFraga]);
+			end;
+        ** Läser in frågorna till vektor. Slut **;
+			do k=1 to antalFragor;
+				if deep=1 then do;
+					local_qstring=v_qstring[k];
+				end;
+				else do;
+					local_qstring=qstring || ',' || v_qstring[k];
+				end;
+				if deep = maxDeep then do;
+					jsonFraga=local_qstring;
+					h_jsonFragor.add([jsonFraga],[jsonFraga]);
+				end;
+				else do;
+					skapaFrageHashhelper(deep+1, maxDeep, local_qstring);
+				end;
+			end;
 		end;
 
 		method skapaSubFraga();
@@ -45,7 +75,8 @@ proc ds2;
 			declare varchar(250) title code text values valueTexts elimination "time";
 			declare integer rundaNr iDataStorlek sizeDataStorlek iMetaData sizeMetaData antal cellerPerValue;
 
- 			h_subFragor.keys([subCode, subFraga]);
+			h_subFragor.multidata('MULTIDATA');
+ 			h_subFragor.keys([subCode]);
 			h_subFragor.data([subCode, subFraga]);
 			h_subFragor.ordered('A');
 			h_subFragor.defineDone();
@@ -53,30 +84,30 @@ proc ds2;
 			iDataStorlek=1;
 			sizeDataStorlek=getMetaData.dataStorlekNumItem();
 			getMetaData.dataStorlekFirst(subCode,antal,cellerPerValue);
-			do until(iDataStorlek=sizeDataStorlek);
-			getMetaData.dataStorlekNext(subCode,antal,cellerPerValue);
+			do until(iDataStorlek>sizeDataStorlek);
+				iMetaData=1;
 				if antal=cellerPerValue then do;
-					subFraga='{"code":' || subCode || '", "selection":{"filter":"all", "values":["*"]}}';
-					h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
+					subFraga='{"code":"' || subCode || '", "selection":{"filter":"all", "values":["*"]}}';
+					h_subFragor.ref([subCode],[subCode, subFraga]);
 				end;
+
 				else if cellerPerValue=1 then do;
-					iMetaData=1;
 					sizeMetaData=getMetaData.metaDataNumItem();
 					getMetaData.metaDataFirst(title, code, text, values, valueTexts, elimination, "time");
 					do until(iMetaData=sizeMetaData);
 					getMetaData.metaDataNext(title, code, text, values, valueTexts, elimination, "time");
 						if subCode=code then do;
-							stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":["';
+							stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":["';
 							subFraga=stubFraga || values || '"]';
 							subFraga=subFraga || '}}';
-							h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
+							h_subFragor.add([subCode],[subCode, subFraga]);
 						end;
 					iMetaData=iMetaData+1;
 					end;
 				end;
 				else do;
 					rundaNr=0;
-					stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":"';
+					stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":"';
 					iMetaData=1;
 					sizeMetaData=getMetaData.metaDataNumItem();
 					getMetaData.metaDataFirst(title, code, text, values, valueTexts, elimination, "time");
@@ -87,9 +118,9 @@ proc ds2;
 							if rundaNr=cellerPerValue then do;
 								stubFraga=stubFraga || ', ["' || values || '"]}}';
 								subFraga=stubFraga;
-								h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
+								h_subFragor.add([subCode],[subCode, subFraga]);
 								rundaNr=0;
-								stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":"';
+								stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":"';
 							end;
 							else if rundaNr=1 then do;
 								stubFraga=stubFraga || '["' || values || '"]';
@@ -103,12 +134,14 @@ proc ds2;
 					if rundaNr^=cellerPerValue then do;
 						stubFraga=stubFraga || '}}';
 						subFraga=stubFraga;
-						h_subFragor.ref([subCode, subFraga],[subCode, subFraga]);
+						h_subFragor.add([subCode],[subCode, subFraga]);
 						rundaNr=0;
-						stubFraga='{"code":' || subCode || '", "selection":{"filter":"item", "values":"';
+						stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":"';
 					end;
 				end;
+				getMetaData.dataStorlekNext(subCode,antal,cellerPerValue);
 			iDataStorlek=iDataStorlek+1;
+
 			end;
 *h_subFragor.output('work.subfraga');
 		end;*skapaSubFraga;

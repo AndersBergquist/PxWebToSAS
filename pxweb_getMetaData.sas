@@ -32,6 +32,7 @@ proc ds2;
 			declare varchar(25000) respons;
 			respons=g.getData(iUrl);
 			parseJsonMeta(respons, maxCells, fullTabellNamn);
+*h_datastorlek.output('work.datastorlek');
 		end;*skapaFraga;
 
 ** Skriver ut metadatatabellen, start **;
@@ -50,6 +51,7 @@ proc ds2;
 		end;
 ** Skriver ut metadatatabellen, slut **;
 
+** Metoder för att hämta data från package, start **;
 		method getAntalCodes() returns integer;
 			declare integer antalCodes;
 			antalCodes=h_datastorlek.num_items;
@@ -57,11 +59,11 @@ proc ds2;
 		end;
 
 		method getAntalCeller() returns integer;
-			declare integer antalCeller;
+			declare integer m_antalCeller;
 			antalCeller=1;
-			hi_dataStorlek.first([code,radNr]);
-			do until(hi_dataStorlek.next([code,radNr]));
-				antalCeller=antalCeller*radNr;
+			hi_dataStorlek.first([code,radNr, antalCeller]);
+			do until(hi_dataStorlek.next([code,radNr, antalCeller]));
+				m_antalCeller=m_antalCeller*radNr;
 			end;
 			return antalCeller;
 		end;
@@ -73,6 +75,22 @@ proc ds2;
 			antalFragor=round((antalCeller/50000)+0.5);
 			return antalFragor;
 		end;
+
+		method dataStorlekFirst(in_out varchar i_code, in_out integer i_antalCeller);
+			code=i_code;
+			antalCeller=i_antalCeller;
+			hi_dataStorlek.first([code, antal, antalCeller]);
+			i_code=code;
+			i_antalCeller=antalCeller;
+		end;
+
+		method dataStorlekNext(in_out varchar i_code, in_out integer i_antalCeller);
+			code=i_code;
+			antalCeller=i_antalCeller;
+			hi_dataStorlek.next([code, antal, antalCeller]);
+		end;
+
+** Metoder för att hämta data från package, start **;
 
 		method parseJsonMeta(varchar(25000) iRespons, integer maxCells, varchar(41) fullTabellNamn);
 			declare package hash parsMeta();
@@ -96,7 +114,8 @@ proc ds2;
 			metaData.defineDone();
 
 			h_dataStorlek.keys([code]);
-			h_dataStorlek.data([code antal, antalCeller]);
+			h_dataStorlek.data([code, antal, antalCeller]);
+			h_dataStorlek.ordered('A');
 			h_dataStorlek.defineDone();
 
 			rc=j.createparser(iRespons);
@@ -236,7 +255,7 @@ proc ds2;
 		end;
 		method dataStorlekNext(in_out varchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
 		declare integer rc;
-			hi_dataStorlek.next([code, radNr,CellerPerValue]);
+			hi_dataStorlek.next([code, radNr, CellerPerValue]);
 		io_code=code;
 			io_radNr=radNr;
 			io_CellerPerValue=CellerPerValue;
@@ -245,6 +264,18 @@ proc ds2;
 			declare integer numItem;
 				numItem=h_dataStorlek.num_items;
 			return numItem;
+		end;
+		method getLevelCode(integer level) returns varchar(250);
+			declare integer i;
+			do i=1 to level;
+				if i=1 then do;
+					hi_dataStorlek.first([code, radNr, CellerPerValue]);
+				end;
+				if i^=1 then do;
+					hi_dataStorlek.next([code, radNr, CellerPerValue]);
+				end;
+			end;
+			return code;
 		end;
 ** datastorlek, slut;
 *** Metoder för att hämta data ur hashtabellerna. slut;
