@@ -14,7 +14,7 @@ proc ds2;
 		declare package hiter hi_jsonFragor(h_jsonFragor);
 		declare varchar(250) subCode;
 		declare varchar(1000) subFraga;
-		declare varchar(10000) jsonFraga;
+		declare varchar(100000) jsonFraga;
 		forward skapaSubFraga skapaFragehash skapaFrageHashHelper skapaFrageHashHelper2;
 
 		method pxweb_makeJsonFraga();
@@ -39,9 +39,9 @@ proc ds2;
 			skapaFrageHashHelper(1,maxDeep,'');
 		end;
 
-		method skapaFrageHashHelper(int deep, int maxDeep, varchar(10000) qstring);
+		method skapaFrageHashHelper(int deep, int maxDeep, varchar(100000) qstring);
 			declare varchar(1000) v_qstring[500];
-			declare varchar(10000) local_qstring;
+			declare varchar(100000) local_qstring;
 			declare integer AntalFragor rc i k;
 			subCode=getMetaData.getLevelCode(deep);
         ** Läser in frågorna till vektor. Start **;

@@ -4,9 +4,9 @@ Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 0.1
 Uppgift:
-- Samla metoder som anv�nds av flera packet.
-Inneh�ller:
-- getData; getData(iURL), h�mtar en responsfil fr�n pxWeb med hj�lp av Get.
+- Samla metoder som används av flera packet.
+Innehåller:
+- getData; getData(iURL), hämtar en responsfil från pxWeb med hjälp av Get.
 - finnsTabell, finnsTabell(iLib, iTabell), returnerar 0 om tabell ej finns och 1 om tabell finns.
 ***********************************/
 
@@ -16,14 +16,15 @@ proc ds2;
 		declare package http pxwebContent();
 		declare varchar(8) lib;
 		declare varchar(32) tabell tid;
+		declare nvarchar(1000000) respons;
 		declare integer antal;
 
 		method pxweb_GemensammaMetoder();
 
 		end;
 
-		method getData(varchar(500) iUrl) returns varchar(100000);*H�mtar metadata fr�n SCB;
-		declare varchar(100000) respons;
+		method getData(varchar(500) iUrl) returns varchar(100000);*Hämtar metadata fr�n SCB;
+		declare varchar(5000000) respons;
 		declare integer sc rc;
 		declare varchar(500) catalogURL;
 
@@ -37,6 +38,26 @@ proc ds2;
 		   else do;
 		   		respons='Error';
 		   end;
+		return respons;
+		end;
+
+		method getData(varchar(500) iUrl, varchar(100000) jsonFraga) returns nvarchar(1000000);
+			declare integer sc rc;
+
+			pxwebContent.createPostMethod(iUrl);
+			pxwebContent.setRequestBodyAsString(jsonFraga);
+			pxwebContent.executeMethod();
+			sc=pxwebContent.getStatusCode();
+			if substr(sc,1,1) not in ('4' '5') then do;
+				pxwebContent.getResponseBodyAsString(respons, rc);
+				if rc=1 then do;
+					respons='pxweb_GemensammaMetoder.getData(post): Något gick fel för att responssträngen kunde inte hittas.';
+				end;
+			end;
+			else do;
+				respons='pxweb_GemensammaMetoder.getData(post): HTTP Error nr: ' || sc;
+			end;
+
 		return respons;
 		end;* getData;
 

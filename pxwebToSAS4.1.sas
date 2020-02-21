@@ -12,6 +12,7 @@ proc ds2;
 	package work.pxWebToSAS4 / overwrite=yes;
 		declare package work.pxweb_UppdateTableDate SCB_Date();
 		declare package work.pxweb_makeJsonFraga SCB_GetJsonFraga();
+		declare package work.pxweb_getData SCB_getData();
 
 		forward getDataStart;
 		method pxwebtosas4();
@@ -38,18 +39,18 @@ proc ds2;
 			declare double tableUpdated dbUpdate;
 			declare varchar(41) fullTabellNamn;
 			declare integer ud;
-			fullTabellNamn=SASLib || '.' || SASTabell;*
-fullTabellNamn='SASUSER.FODDAK';
+			fullTabellNamn=SASLib || '.' || SASTabell;
 			tableUpdated=SCB_Date.getSCBDate(iUrl);
 			dbUpdate=SCB_Date.getDBDate(fullTabellNamn);
 			if dbUpdate < tableUpdated then do;
 put 'Tabellen ska uppdateras';
-				
 				SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn);
+iUrl='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/AM/AM0401/AM0401I/NAKUSysselsatta2M';
+				SCB_getData.hamtaData(iUrl);
 				ud=1;
 			end;
 			else do;
-				put 'Det finns ingen uppdatering';
+				put 'pxWebToSAS.getDataStart: Det finns ingen uppdatering till' fullTabellNamn;
 				ud=0;
 			end;
 		end;
