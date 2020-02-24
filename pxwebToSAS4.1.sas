@@ -18,12 +18,12 @@ proc ds2;
 		method pxwebtosas4();
 
 		end;
-
+******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(varchar(500) inUrl);
 			declare varchar(32) SASTabell tmpTable libname;
 			declare integer maxCells;
 			maxCells=50000;
-			tmpTable='work.' || scan(inUrl, -1, '/') || strip(put(time(),8.));
+			tmpTable=scan(inUrl, -1, '/') || strip(put(time(),8.));
 			SASTabell=scan(inUrl, -1, '/');
 			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
 
@@ -33,7 +33,7 @@ proc ds2;
 			declare integer maxCells;
 			declare varchar(32) tmpTable;
 			maxCells=50000;
-			tmpTable='work.' || scan(inUrl, -1, '/') || strip(put(time(),8.));
+			tmpTable=scan(inUrl, -1, '/') || strip(put(time(),8.));
 			getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
 		end;
 
@@ -53,6 +53,8 @@ proc ds2;
 			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
 		end;
 
+******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
+
 		method getDataStart(varchar(500) iUrl, varchar(8) SASLib, varchar(32) SASTabell, integer maxCells, varchar(32) tmpTable);
 			declare double tableUpdated dbUpdate;
 			declare varchar(41) fullTabellNamn;
@@ -64,6 +66,7 @@ proc ds2;
 			if dbUpdate < tableUpdated then do;
 put 'Tabellen ska uppdateras';
 				SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn);
+		 *** I slutändan, någon loop behövs ;
 				SCB_GetJsonFraga.getFirstFraga(jsonFraga);
 				SCB_getData.hamtaData(iUrl,jsonFraga, tmpTable);
 				ud=1;
