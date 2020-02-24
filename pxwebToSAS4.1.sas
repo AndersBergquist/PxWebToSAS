@@ -20,24 +20,43 @@ proc ds2;
 		end;
 
 		method getData(varchar(500) inUrl);
-			declare varchar(41) SASTabell;
+			declare varchar(32) SASTabell tmpTable libname;
 			declare integer maxCells;
 			maxCells=50000;
-
+			tmpTable='work.' || scan(inUrl, -1, '/') || strip(put(time(),8.));
 			SASTabell=scan(inUrl, -1, '/');
-*Lägg till en check som hanter om tabellen skrivs sasuser.mintabell;
-			getDataStart(inUrl, 'work', SASTabell, maxCells);
+			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
+
 		end;
 
 		method getData(varchar(500) inUrl, varchar(8) SASLib, varchar(32) SASTabell);
 			declare integer maxCells;
+			declare varchar(32) tmpTable;
 			maxCells=50000;
-			getDataStart(inUrl, SASLib, SASTabell, maxCells);
+			tmpTable='work.' || scan(inUrl, -1, '/') || strip(put(time(),8.));
+			getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
 		end;
 
-		method getDataStart(varchar(500) iUrl, varchar(8) SASLib, varchar(32) SASTabell, integer maxCells);
+		method getData(varchar(500) inUrl, integer maxCells, varchar(8) SASLib, varchar(32) SASTabell, varchar(32) tmpTable);
+			getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
+		end;
+
+		method getData(varchar(500) inUrl, varchar(32) tmpTable);
+			declare varchar(32) SASTabell libname;
+			declare integer maxCells;
+			maxCells=50000;
+			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
+		end;
+
+		method getData(varchar(500) inUrl, integer maxCells, varchar(32) tmpTable);
+			declare varchar(32) SASTabell libname;
+			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
+		end;
+
+		method getDataStart(varchar(500) iUrl, varchar(8) SASLib, varchar(32) SASTabell, integer maxCells, varchar(32) tmpTable);
 			declare double tableUpdated dbUpdate;
 			declare varchar(41) fullTabellNamn;
+			declare nvarchar(100000) jsonFraga;
 			declare integer ud;
 			fullTabellNamn=SASLib || '.' || SASTabell;
 			tableUpdated=SCB_Date.getSCBDate(iUrl);
@@ -45,8 +64,8 @@ proc ds2;
 			if dbUpdate < tableUpdated then do;
 put 'Tabellen ska uppdateras';
 				SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn);
-iUrl='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/AM/AM0401/AM0401I/NAKUSysselsatta2M';
-				SCB_getData.hamtaData(iUrl);
+				SCB_GetJsonFraga.getFirstFraga(jsonFraga);
+				SCB_getData.hamtaData(iUrl,jsonFraga, tmpTable);
 				ud=1;
 			end;
 			else do;

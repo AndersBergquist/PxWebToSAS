@@ -3,7 +3,7 @@ Program: pxweb_makeJsonFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 0.1
 Uppgift:
-- Skapar json-fr�ga till datah�mtning
+- Skapar json-fråga till datahämtning
 ***********************************/
 proc ds2;
 	package work.pxweb_makeJsonFraga / overwrite=yes;
@@ -61,7 +61,7 @@ proc ds2;
 					local_qstring=qstring || ',' || v_qstring[k];
 				end;
 				if deep = maxDeep then do;
-					jsonFraga=local_qstring;
+					jsonFraga='{"query": [' || local_qstring || ' ], "response": {"format": "json"}}';
 					h_jsonFragor.add([jsonFraga],[jsonFraga]);
 				end;
 				else do;
@@ -86,11 +86,12 @@ proc ds2;
 			getMetaData.dataStorlekFirst(subCode,antal,cellerPerValue);
 			do until(iDataStorlek>sizeDataStorlek);
 				iMetaData=1;
+				* Alla variabler väljs;
 				if antal=cellerPerValue then do;
 					subFraga='{"code":"' || subCode || '", "selection":{"filter":"all", "values":["*"]}}';
 					h_subFragor.ref([subCode],[subCode, subFraga]);
 				end;
-
+				* En variabel i taget väljs;
 				else if cellerPerValue=1 then do;
 					sizeMetaData=getMetaData.metaDataNumItem();
 					getMetaData.metaDataFirst(title, code, text, values, valueTexts, elimination, "time");
@@ -98,16 +99,17 @@ proc ds2;
 					getMetaData.metaDataNext(title, code, text, values, valueTexts, elimination, "time");
 						if subCode=code then do;
 							stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":["';
-							subFraga=stubFraga || values || '"]';
-							subFraga=subFraga || '}}';
+							subFraga=stubFraga || values || '"';
+							subFraga=subFraga || ']}}';
 							h_subFragor.add([subCode],[subCode, subFraga]);
 						end;
 					iMetaData=iMetaData+1;
 					end;
 				end;
+				* Delmängd av variabler väljs;
 				else do;
 					rundaNr=0;
-					stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":"';
+					stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":[';
 					iMetaData=1;
 					sizeMetaData=getMetaData.metaDataNumItem();
 					getMetaData.metaDataFirst(title, code, text, values, valueTexts, elimination, "time");
@@ -116,23 +118,23 @@ proc ds2;
 						if subCode=code then do;
 							rundaNr=rundaNr+1;
 							if rundaNr=cellerPerValue then do;
-								stubFraga=stubFraga || ', ["' || values || '"]}}';
+								stubFraga=stubFraga || ', "' || values || '"]}}';
 								subFraga=stubFraga;
 								h_subFragor.add([subCode],[subCode, subFraga]);
 								rundaNr=0;
-								stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":"';
+								stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":[';
 							end;
 							else if rundaNr=1 then do;
-								stubFraga=stubFraga || '["' || values || '"]';
+								stubFraga=stubFraga || '"' || values || '"';
 							end;
 							else do;
-								stubFraga=stubFraga || ', ["' || values || '"]';
+								stubFraga=stubFraga || ', "' || values || '"';
 							end;
 						end;
 					iMetaData=iMetaData+1;
 					end;
 					if rundaNr^=cellerPerValue then do;
-						stubFraga=stubFraga || '}}';
+						stubFraga=stubFraga || ']}}';
 						subFraga=stubFraga;
 						h_subFragor.add([subCode],[subCode, subFraga]);
 						rundaNr=0;
@@ -145,6 +147,12 @@ proc ds2;
 			end;
 *h_subFragor.output('work.subfraga');
 		end;*skapaSubFraga;
+* Ett antal metoder för att kunna hämta jsonfrågor från packetet;
+*** Hämtar första fråga;
+		method getFirstFraga(in_out nvarchar i_jsonFraga);
+			hi_jsonFragor.first([jsonFraga]);
+			i_jsonFraga=jsonFraga;
+		end;
 
 	endpackage;
 run;quit;

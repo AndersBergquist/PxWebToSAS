@@ -88,9 +88,11 @@ proc ds2;
 			code=i_code;
 			antalCeller=i_antalCeller;
 			hi_dataStorlek.next([code, antal, antalCeller]);
+			i_code=code;
+			i_antalCeller=antalCeller;
 		end;
 
-** Metoder för att hämta data från package, start **;
+** Metoder för att hämta data från package, slut **;
 
 		method parseJsonMeta(varchar(25000) iRespons, integer maxCells, varchar(41) fullTabellNamn);
 			declare package hash parsMeta();
@@ -256,7 +258,7 @@ proc ds2;
 		method dataStorlekNext(in_out varchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
 		declare integer rc;
 			hi_dataStorlek.next([code, radNr, CellerPerValue]);
-		io_code=code;
+			io_code=code;
 			io_radNr=radNr;
 			io_CellerPerValue=CellerPerValue;
 		end;
