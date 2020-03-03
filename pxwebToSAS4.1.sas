@@ -49,7 +49,7 @@ proc ds2;
 		end;
 
 		method getData(varchar(500) inUrl, integer maxCells, varchar(32) tmpTable);
-			declare varchar(32) SASTabell libname;
+			declare varchar(32) SASTabell;
 			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
 		end;
 
@@ -65,10 +65,10 @@ proc ds2;
 			dbUpdate=SCB_Date.getDBDate(fullTabellNamn);
 			if dbUpdate < tableUpdated then do;
 put 'Tabellen ska uppdateras';
-				SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn);
+				SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn, tmpTable);
 		 *** I slutändan, någon loop behövs ;
 				SCB_GetJsonFraga.getFirstFraga(jsonFraga);
-				SCB_getData.hamtaData(iUrl,jsonFraga, tmpTable);
+				SCB_getData.hamtaData(iUrl, jsonFraga, tmpTable, fullTabellNamn);
 				ud=1;
 			end;
 			else do;

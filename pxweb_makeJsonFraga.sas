@@ -20,9 +20,9 @@ proc ds2;
 		method pxweb_makeJsonFraga();
 		end;
 
-		method skapaFraga(varchar(500) iUrl, integer maxCells, varchar(41) fullTabellNamn);
+		method skapaFraga(varchar(500) iUrl, integer maxCells, varchar(41) fullTabellNamn, varchar(32) tmpTable);
 			declare integer antalCodes;
-			getMetaData.getData(iURL, maxCells, fullTabellNamn);
+			getMetaData.getData(iURL, maxCells, fullTabellNamn, tmpTable);
 			skapaSubFraga();
 			skapaFragehash();
 *h_jsonFragor.output('work.jsonFragor');

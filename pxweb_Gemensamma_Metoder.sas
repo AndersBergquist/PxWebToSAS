@@ -19,6 +19,8 @@ proc ds2;
 		declare nvarchar(1000000) respons;
 		declare integer antal;
 
+		forward finnsTabellHelper;
+
 		method pxweb_GemensammaMetoder();
 
 		end;
@@ -61,7 +63,26 @@ proc ds2;
 		return respons;
 		end;* getData;
 
+**** FinnsTabell metoden start;
+		method finnsTabell(varchar(40) fullTabellNamn) returns integer;
+			declare varchar(8) iLib;
+			declare varchar(32) iTabell;
+			declare integer antal;
+			
+			iLib=scan(fullTabellNamn,1,'.');
+			iTabell=scan(fullTabellNamn,2,'.');
+			antal=finnsTabellHelper(iLib, iTabell);
+			return antal;
+		end;
+
 		method finnsTabell(varchar(8) iLib, varchar(32) iTabell) returns integer;
+			declare integer antal;
+
+			antal=finnsTabellHelper(iLib, Itabell);
+			return antal;
+		end;
+
+		method finnsTabellHelper(varchar(8) iLib, varchar(32) iTabell) returns integer;
 			declare package sqlstmt s('select count(*) as antal from dictionary.tables where TABLE_SCHEM=? AND table_name=?',[lib tabell]);
 
 			tabell=upcase(iTabell);
@@ -72,6 +93,7 @@ proc ds2;
 			if antal > 0 then antal=1; else antal=0;
 		return antal;
 		end;*finnsTabell;
+**** FinnsTabell metoden slut;
 
 		method getSenasteTid(varchar(40) fullTabellNamn) returns varchar(32);
 			declare	package sqlstmt s();

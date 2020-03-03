@@ -24,15 +24,16 @@ proc ds2;
 		declare varchar(250) title code text values valueTexts elimination "time" subCode;
 		declare varchar(25000) subFraga;
 
-		forward getJsonMeta parseJsonMeta printData;
+		forward getJsonMeta parseJsonMeta printData skapaMetadataSamling;
 		method pxweb_getMetaData();
 		end;
 
-		method getData(varchar(500) iUrl, integer maxCells, varchar(41) fullTabellNamn);
+		method getData(varchar(500) iUrl, integer maxCells, varchar(41) fullTabellNamn, varchar(32) tmpTable);
 			declare varchar(25000) respons;
 			respons=g.getData(iUrl);
 			parseJsonMeta(respons, maxCells, fullTabellNamn);
-*h_datastorlek.output('work.datastorlek');
+			skapaMetadataSamling();
+			metaData.output('work.meta_' || tmpTable);
 		end;*skapaFraga;
 
 ** Skriver ut metadatatabellen, start **;
@@ -281,6 +282,9 @@ proc ds2;
 		end;
 ** datastorlek, slut;
 *** Metoder för att hämta data ur hashtabellerna. slut;
+		method skapaMetadataSamling();
+
+		end;
 
 	endpackage;
 run;quit;
