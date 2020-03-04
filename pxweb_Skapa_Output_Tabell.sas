@@ -12,9 +12,11 @@ proc ds2;
 	package work.pxweb_skapaOutputTabell / overwrite=yes;
 		declare package work.pxweb_GemensammaMetoder g();
 		declare package work.pxweb_getMetaData getMeta();
+		declare package hash h_content();
+		declare package hiter hi_content(h_content);
 		declare package hash h_metadata();
 		declare package hiter hi_metadata(h_metadata);
-		declare nvarchar(250) title code text "time" elimination;
+		declare nvarchar(250) title code text "time" elimination values valueTexts;
 		declare integer len_values len_valueTexts;
 
 		forward skapaTabell useExistingTable identifieraTidsvariabler;
@@ -23,7 +25,6 @@ proc ds2;
 		end;
 
 		method skapaOutputTabell(varchar(32) tmpTable, nvarchar(40) fullTabellNamn);
-fullTabellNamn='sasuser.aku_ny';			
 			if g.finnsTabell('work', tmpTable)=0 then do;
 				if g.finnsTabell(fullTabellNamn)=0 then do;
 					skapaTabell(tmpTable);
@@ -44,6 +45,12 @@ fullTabellNamn='sasuser.aku_ny';
 			h_metadata.dataset('{select title, code, text, "time", elimination, max(CHARACTER_LENGTH(trim("values"))) as len_values, max(CHARACTER_LENGTH(trim(valueTexts))) as len_valueTexts from work.meta_' || tmpTable ||' where trim(code) ^= ''ContentsCode'' group by title, code, text, "time", elimination}');
 			h_metadata.ordered('A');
 			h_metadata.defineDone();
+
+			h_content.keys([values]);
+			h_content.data([values valueTexts]);
+			h_content.dataset('{select trim("values") as "values", trim(valueTexts) as valueTexts from work.meta_' || tmpTable ||' where trim(code) = ''ContentsCode''}');
+			h_content.defineDone();
+
 *********** Tänk på: variabelnamn som inte är alphanumeriskt skall skrivas ''variablenamn''n En check måste göras;
 *********** Gör det allmänt;
 
@@ -67,6 +74,11 @@ fullTabellNamn='sasuser.aku_ny';
 					sqlfraga=sqlfraga || ',' || strip(code) || '_cd varchar(' || len_Values || ') having label ''' || trim(text) || '''';
 					sqlfraga=sqlfraga || ',' || strip(code) || '_nm varchar(' || len_ValueTexts || ') having label ''' || trim(text) || '''';
 				end;
+			end;
+
+			rc=hi_content.first([values valueTexts]);
+			do until(hi_content.next([values valueTexts]));
+				sqlfraga=sqlfraga || ', ' || values || ' double having label ''' || valueTexts || '''';
 			end;
 			sqlfraga=sqlfraga || ')';
 			sqlExec(sqlfraga);
