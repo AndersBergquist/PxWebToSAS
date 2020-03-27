@@ -25,7 +25,6 @@ proc ds2;
 			getMetaData.getData(iURL, maxCells, fullTabellNamn, tmpTable);
 			skapaSubFraga();
 			skapaFragehash();
-*h_jsonFragor.output('work.jsonFragor');
 		end;
 
 		method skapaFragehash();
@@ -143,7 +142,6 @@ proc ds2;
 				end;
 				getMetaData.dataStorlekNext(subCode,antal,cellerPerValue);
 			iDataStorlek=iDataStorlek+1;
-
 			end;
 *h_subFragor.output('work.subfraga');
 		end;*skapaSubFraga;
