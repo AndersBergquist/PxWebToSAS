@@ -38,7 +38,7 @@ proc ds2;
 		method skapaTabell( nvarchar(32) tmpTable);
 			declare nvarchar(2000) sqlfraga;
 			declare nvarchar(250) txtStr;
-			declare integer rc;
+			declare integer rc d;
 
 			h_metadata.keys([title code text "time" elimination]);
 			h_metadata.data([title code text "time" elimination len_values len_valueTexts]);
@@ -55,6 +55,7 @@ proc ds2;
 *********** Gör det allmänt;
 
 			rc=hi_metadata.first([title code text "time" elimination len_values len_valueTexts]);
+			if anydigit(strip(code))=1 then code = '_' || strip(code);
 			sqlfraga='CREATE TABLE work.' || tmpTable || '{option label=''' || strip(title) || '''} (';
 			if strip("time") ^='true' then do;
 				sqlfraga=sqlfraga || strip(code) || '_cd varchar(' || len_Values || ') having label ''' || trim(text) || '''';
@@ -66,6 +67,7 @@ proc ds2;
 			end;
 			hi_metadata.next([title code text "time" elimination len_values len_valueTexts]);
 			do until(hi_metadata.next([title code text "time" elimination len_values len_valueTexts]));
+			if anydigit(strip(code))=1 then code = '_' || strip(code);
 				if strip("time")='true' then do;
 					identifieraTidsvariabler(text, code, text, len_Values, len_ValueTexts,txtStr);
 					sqlfraga=sqlfraga || ',' || txtStr;
@@ -78,6 +80,7 @@ proc ds2;
 
 			rc=hi_content.first([values valueTexts]);
 			do until(hi_content.next([values valueTexts]));
+				if anydigit(strip(values))=1 then values = '_' || strip(values);
 				sqlfraga=sqlfraga || ', ' || values || ' double having label ''' || valueTexts || '''';
 			end;
 			sqlfraga=sqlfraga || ')';
