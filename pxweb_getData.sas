@@ -30,16 +30,18 @@ proc ds2;
 				skapaOutputTabell.skapaOutputTabell(tmpTable, fullTabellNamn);
 			end;
 			respons=g.getData(iUrl, jsonFraga);
+			if substr(respons,1,38)='pxweb_GemensammaMetoder.getData(post):' then put respons;
+
 			if s_updateTmpTable.isPrepared()=0 then do;
-				prepare_s(respons, tmpTable);
+*				prepare_s(respons, tmpTable);
 			end;
-			parseSCBRespons(respons, tmpTable);
+*			parseSCBRespons(respons, tmpTable);
 		end;
 
 * update tmpTable set col1=?`, col2=?, col3=? ...;
 
 		method parseSCBRespons(nvarchar(5000000) iRespons, varchar(32) tmpTable);
-
+put iRespons;
 		end;
 
 
