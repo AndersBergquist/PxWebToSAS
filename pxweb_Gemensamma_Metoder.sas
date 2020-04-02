@@ -45,8 +45,8 @@ proc ds2;
 
 		method getData(varchar(500) iUrl, varchar(100000) jsonFraga) returns nvarchar(1000000);
 			declare integer sc rc;
-
 			pxwebContent.createPostMethod(iUrl);
+			pxwebContent.setRequestContentType('application/json; charset=utf-8');
 			pxwebContent.setRequestBodyAsString(jsonFraga);
 			pxwebContent.executeMethod();
 			sc=pxwebContent.getStatusCode();

@@ -21,7 +21,7 @@ proc ds2;
 
 		method hamtaData(varchar(500) iUrl, nvarchar(100000) jsonFraga, varchar(32) tmpTable, varchar(40) fullTabellNamn);
 			declare nvarchar(5000000) respons;
-			declare integer tmpTableFinns fullTabellFinns;
+			declare integer tmpTableFinns fullTabellFinns p;
 
 			tmpTableFinns=g.finnsTabell('work', tmpTable);
 			fullTabellFinns=g.finnsTabell(fullTabellNamn);
@@ -31,17 +31,19 @@ proc ds2;
 			end;
 			respons=g.getData(iUrl, jsonFraga);
 			if substr(respons,1,38)='pxweb_GemensammaMetoder.getData(post):' then put respons;
+*p=s_updateTmpTable.isPrepared();
+*put p;
 
 			if s_updateTmpTable.isPrepared()=0 then do;
 *				prepare_s(respons, tmpTable);
 			end;
-*			parseSCBRespons(respons, tmpTable);
+			parseSCBRespons(respons, tmpTable);
 		end;
 
 * update tmpTable set col1=?`, col2=?, col3=? ...;
 
 		method parseSCBRespons(nvarchar(5000000) iRespons, varchar(32) tmpTable);
-put iRespons;
+*put iRespons;
 		end;
 
 
