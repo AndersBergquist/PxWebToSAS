@@ -33,7 +33,7 @@ proc ds2;
 			if substr(respons,1,38)='pxweb_GemensammaMetoder.getData(post):' then put respons;
 
 			if s_updateTmpTable.isPrepared()=0 then do;
-*				prepare_s(respons, tmpTable);
+				prepare_s(respons, tmpTable);
 			end;
 			parseSCBRespons(respons, tmpTable);
 		end;
@@ -41,7 +41,7 @@ proc ds2;
 * update tmpTable set col1=?`, col2=?, col3=? ...;
 
 		method parseSCBRespons(nvarchar(5000000) iRespons, varchar(32) tmpTable);
-put iRespons;
+*put iRespons;
 		end;
 
 
@@ -52,6 +52,7 @@ put iRespons;
 
 		method prepare_s(nvarchar(5000000) iRespons, varchar(32) tmpTable);
 			declare package json j();
+			declare package work.pxweb_GemensammaMetoder g_metoder();
 			declare varchar(1000) sqlUpdate;
 			declare varchar(250) token code text comment type unit;
 			declare integer rc tokenType parseFlags tmpCeller divisor loopNr;
@@ -64,10 +65,11 @@ put iRespons;
 
 			end;
 			do until(j.ISRIGHTBRACKET(tokenType));
-				type='d';
+*behövs?;				type='d';
 				do until(j.isrightbrace(tokenType));
 					if trim(token)='code' then do;
 						j.getNextToken(rc,token,tokenType,parseFlags);
+						g_metoder.kollaVariabelNamn(token);
 						code=trim(token);
 					end;
 					else if trim(token)='text' then do;
@@ -88,6 +90,7 @@ put iRespons;
 					end;
 
 					j.getNextToken(rc,token,tokenType,parseFlags);
+*put 'Första loopen ' token;
 				end;
 				if type='d' then do;
 					if loopNr=0 then do;
@@ -109,6 +112,7 @@ put iRespons;
 					sqlUpdate=sqlUpdate || ', ' || code || '=?';
 				end;
 				j.getNextToken(rc,token,tokenType,parseFlags);
+*put 'Sistas raden: ' token;
 			end;
 			s_updateTmpTable.prepare(sqlUpdate);
 		end;*S_prepare end;
