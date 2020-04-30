@@ -13,18 +13,34 @@ proc ds2;
 		declare package work.pxweb_GemensammaMetoder g();
 		declare package work.pxweb_skapaOutputTabell skapaOutputTabell();
 		declare package sqlstmt s_updateTmpTable();
+		declare package hash h_valuesdata();
+		declare varchar(250) values valuetexts code;
+		declare integer h_exist;
 
 		forward parseSCBRespons cretateTidsvariabler prepare_s;
-		
-		method pxweb_getData();
-		end;
 
+		method pxweb_getData();
+			h_exist=0;
+		end;
 		method hamtaData(varchar(500) iUrl, nvarchar(100000) jsonFraga, varchar(32) tmpTable, varchar(40) fullTabellNamn);
 			declare nvarchar(5000000) respons;
+			declare varchar(150) loadMetadata;
 			declare integer tmpTableFinns fullTabellFinns p;
 
 			tmpTableFinns=g.finnsTabell('work', tmpTable);
 			fullTabellFinns=g.finnsTabell(fullTabellNamn);
+
+			if h_exist=0 then do;
+	*			loadMetadata='{select code, values, valueTexts from work.meta_' || tmpTable || ';*}';
+				loadMetadata='{select * from work.meta_' || tmpTable || ';}';
+
+				h_valuesdata.keys([values]);
+				h_valuesdata.data([code values valuetexts]);
+				h_valuesdata.dataset(loadMetadata);
+				h_valuesdata.definedone();
+	h_valuesdata.output('work.mdata_' || tmpTable);
+				h_exist=1;
+			end;
 
 			if tmpTableFinns=0 then do;
 				skapaOutputTabell.skapaOutputTabell(tmpTable, fullTabellNamn);
@@ -114,6 +130,7 @@ proc ds2;
 				j.getNextToken(rc,token,tokenType,parseFlags);
 *put 'Sistas raden: ' token;
 			end;
+put 'SQL-update:' sqlupdate;
 			s_updateTmpTable.prepare(sqlUpdate);
 		end;*S_prepare end;
 
