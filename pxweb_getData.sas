@@ -12,6 +12,7 @@ proc ds2;
 	package work.pxweb_getData / overwrite=yes;
 		declare package work.pxweb_GemensammaMetoder g();
 		declare package work.pxweb_skapaOutputTabell skapaOutputTabell();
+		declare package pxweb_skapaStmtFraga skapaStmtFraga(); 
 		declare package hash h_valuesdata();
 		declare package sqlstmt s_updateTmpTable;
 		declare varchar(250) values valuetexts code ;
