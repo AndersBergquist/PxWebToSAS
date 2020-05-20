@@ -12,15 +12,16 @@ proc ds2;
 	package work.pxweb_getData / overwrite=yes;
 		declare package work.pxweb_GemensammaMetoder g();
 		declare package work.pxweb_skapaOutputTabell skapaOutputTabell();
-		declare package sqlstmt s_updateTmpTable();
 		declare package hash h_valuesdata();
-		declare varchar(250) values valuetexts code;
-		declare integer h_exist;
+		declare package sqlstmt s_updateTmpTable;
+		declare varchar(250) values valuetexts code ;
+		declare integer h_exist s_updateTmpTable_exist c d;
 
 		forward parseSCBRespons cretateTidsvariabler prepare_s;
 
 		method pxweb_getData();
 			h_exist=0;
+			s_updateTmpTable_exist=0;
 		end;
 		method hamtaData(varchar(500) iUrl, nvarchar(100000) jsonFraga, varchar(32) tmpTable, varchar(40) fullTabellNamn);
 			declare nvarchar(5000000) respons;
@@ -31,14 +32,11 @@ proc ds2;
 			fullTabellFinns=g.finnsTabell(fullTabellNamn);
 
 			if h_exist=0 then do;
-	*			loadMetadata='{select code, values, valueTexts from work.meta_' || tmpTable || ';*}';
 				loadMetadata='{select * from work.meta_' || tmpTable || ';}';
-
 				h_valuesdata.keys([values]);
 				h_valuesdata.data([code values valuetexts]);
 				h_valuesdata.dataset(loadMetadata);
 				h_valuesdata.definedone();
-	h_valuesdata.output('work.mdata_' || tmpTable);
 				h_exist=1;
 			end;
 
@@ -47,17 +45,15 @@ proc ds2;
 			end;
 			respons=g.getData(iUrl, jsonFraga);
 			if substr(respons,1,38)='pxweb_GemensammaMetoder.getData(post):' then put respons;
-
-			if s_updateTmpTable.isPrepared()=0 then do;
+			if s_updateTmpTable_exist = 0 then do;
 				prepare_s(respons, tmpTable);
 			end;
 			parseSCBRespons(respons, tmpTable);
 		end;
 
-* update tmpTable set col1=?`, col2=?, col3=? ...;
-
 		method parseSCBRespons(nvarchar(5000000) iRespons, varchar(32) tmpTable);
 *put iRespons;
+			
 		end;
 
 
@@ -69,19 +65,22 @@ proc ds2;
 		method prepare_s(nvarchar(5000000) iRespons, varchar(32) tmpTable);
 			declare package json j();
 			declare package work.pxweb_GemensammaMetoder g_metoder();
-			declare varchar(1000) sqlUpdate;
+			declare varchar(1000) sqlInsert sqlValues dimString valueString conString;
 			declare varchar(250) token code text comment type unit;
-			declare integer rc tokenType parseFlags tmpCeller divisor loopNr;
+			declare integer rc sc tokenType parseFlags tmpCeller divisor loopNr;
 
 			rc=j.createparser(iRespons);
-			sqlUpdate='UPDATE ' || tmpTable || ' set ';
+			sqlInsert='insert into ' || tmpTable || ' ( ';
+			sqlValues=' values (';
 			loopNr=1;
+			d=0;
+			c=0;
 			do until(trim(token)='columns');
 				j.getNextToken(rc,token,tokenType,parseFlags);
 
 			end;
 			do until(j.ISRIGHTBRACKET(tokenType));
-*behövs?;				type='d';
+				type='d'; *Kollar senare om denna behövs;
 				do until(j.isrightbrace(tokenType));
 					if trim(token)='code' then do;
 						j.getNextToken(rc,token,tokenType,parseFlags);
@@ -110,28 +109,39 @@ proc ds2;
 				end;
 				if type='d' then do;
 					if loopNr=0 then do;
-						sqlUpdate=sqlUpdate || ', ';
+						sqlInsert=sqlInsert || ', ';
+						sqlValues=sqlValues || ', ';
 					end;
 					else loopNr=0;
-					sqlUpdate=sqlUpdate || code || '_cd=?' || ', ' || code || '_nm=?';
+					sqlInsert=sqlInsert || code || '_cd' || ', ' || code || '_nm';
+					sqlValues=sqlValues || '?, ?';
+					d=d+2;
 				end;
 				if type='t' then do;
 					if loopNr=0 then do;
-						sqlUpdate=sqlUpdate || ', ';
+						sqlInsert=sqlInsert || ', ';
+						sqlValues=sqlValues || ', ';
 					end;
-					else loopNr=0;					sqlUpdate=sqlUpdate || code || '_cd=?' || ', ' ||code || '_nm=?';
+					else loopNr=0;
+					sqlInsert=sqlInsert || code || '_cd' || ', ' ||code || '_nm';
+					sqlValues=sqlValues || '?, ?';
 					if lowCase(text) in ('år', 'kvartal', 'månad') then do;
-						sqlUpdate=sqlUpdate || ', ' || code || '_dt=?';
+						sqlInsert=sqlInsert|| ', ' || code || '_dt';
+						sqlValues=sqlValues || ', ?';
 					end;
+					d=d+3;
 				end;
 				if type='c' then do;
-					sqlUpdate=sqlUpdate || ', ' || code || '=?';
+					sqlInsert=sqlInsert || ', ' || code;
+					sqlValues=sqlValues || ', ?';
+					c=c+1;
 				end;
 				j.getNextToken(rc,token,tokenType,parseFlags);
 *put 'Sistas raden: ' token;
 			end;
-put 'SQL-update:' sqlupdate;
-			s_updateTmpTable.prepare(sqlUpdate);
+			sqlInsert=sqlInsert || ')' || sqlValues || ')';
+			s_updateTmpTable = _new_ sqlstmt(sqlInsert);
+			s_updateTmpTable_exist=1;
 		end;*S_prepare end;
 
 	endpackage;
