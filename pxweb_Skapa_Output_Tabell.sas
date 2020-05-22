@@ -90,8 +90,9 @@ proc ds2;
 
 		method identifieraTidsvariabler(varchar(250) tidTyp, varchar(250) code, varchar(250) text, integer len_Values, integer len_valueTexts, in_out varchar(250) tidString);
 			if lowCase(tidTyp) in ('år', 'kvartal', 'månad') then do;
-					tidString=strip(code) || '_dt date having label ''' || trim(text) || '''';
-					tidString=tidString || ',' || strip(code) || '_cd varchar(' || len_Values || ') having label ''' || trim(text) || '''';
+*					tidString=strip(code) || '_dt integer having label ''' || trim(text) || '''';
+					tidString=strip(code) || '_cd varchar(' || len_Values || ') having label ''' || trim(text) || '''';
+*					tidString=tidString || ',' || strip(code) || '_cd varchar(' || len_Values || ') having label ''' || trim(text) || '''';
 					tidString=tidString || ',' || strip(code) || '_nm varchar(' || len_ValueTexts || ') having label ''' || trim(text) || '''';
 			end;
 **Returnerar en sträng med tidsvariabelns variationer. t.ex år ger tid_dt och tid_cd och tid_num, månad ger tid_dt och tid_cd o.s.v.;

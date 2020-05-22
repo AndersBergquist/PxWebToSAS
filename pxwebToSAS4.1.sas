@@ -64,7 +64,11 @@ proc ds2;
 			declare double tableUpdated dbUpdate;
 			declare varchar(41) fullTabellNamn;
 			declare varchar(250) fraga;
-			declare integer ud rc i x;
+			declare integer ud rc i x ;
+			declare integer starttid runTime;
+
+			starttid=time();
+
 			fullTabellNamn=SASLib || '.' || SASTabell;
 			tableUpdated=SCB_Date.getSCBDate(iUrl);
 			dbUpdate=SCB_Date.getDBDate(fullTabellNamn);
@@ -88,6 +92,8 @@ put 'Fråga nr:' i;
 				put 'pxWebToSAS.getDataStart: Det finns ingen uppdatering till' fullTabellNamn;
 				ud=0;
 			end;
+			runtime=time()-starttid;
+put 'Hämtningen tog' runTime 'sekunder';
 		end;
 	endpackage ;
 run;quit;

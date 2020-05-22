@@ -116,9 +116,7 @@ proc ds2;
 		end;*getDBDate;
 
 		method kollaVariabelNamn(in_out varchar code);
-put 'Inkod: ' code;
 			if anydigit(strip(code))=1 then code='_' || strip(code);
-put 'Utkod: ' code;
 		end;*kollaVariabelNamn;
 
 	endpackage ;
