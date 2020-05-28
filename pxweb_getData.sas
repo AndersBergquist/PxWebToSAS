@@ -19,7 +19,7 @@ proc ds2;
 		declare char(1) dtype;
 		declare varchar(250) values valuetexts code kolNamn kolTexts;
 		declare varchar(1000) sqlInsert;
-		declare integer h_exist c_exist c_index s_updateTmpTable_exist c d ;
+		declare integer h_exist c_exist c_index s_updateTmpTable_exist c d;
 
 		forward parseSCBRespons cretateTidsvariabler prepare_s;
 
@@ -54,7 +54,6 @@ proc ds2;
 				skapaStmtFraga.prepare_s(respons, tmpTable, sqlInsert, d, c);
 				s_updateTmpTable_exist=1;
 				s_updateTmpTable = _new_ sqlstmt(sqlInsert);
-put sqlInsert=;
 			end;
 			parseSCBRespons(respons, tmpTable);
 		end;
@@ -141,9 +140,9 @@ if sc=1 then put 'values' i= token=;
 					end;
 				end;
 			j.getNextToken(rc, token, tokenType, parseFlags);
-			end;
 			sc=s_updateTmpTable.execute();
 put 'stmt.execute:' sc=;
+			end;
 		end;
 
 		method cretateTidsvariabler(varchar(250) tid_cd, varchar(250) tid_nm) returns integer;
