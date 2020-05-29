@@ -101,6 +101,7 @@ proc ds2;
 				if token='data' then do;
 					do until(j.ISRIGHTBRACKET(tokenType));
 						if token='key' then do;
+
 							i=1;
 							c_index=1;
 							j.getNextToken(rc, token, tokenType, parseFlags);
@@ -132,8 +133,8 @@ proc ds2;
 								c_index=c_index+1;
 								j.getNextToken(rc, token, tokenType, parseFlags);
 							end;
+						sc=s_updateTmpTable.execute();
 						end;
-			sc=s_updateTmpTable.execute();
 						j.getNextToken(rc, token, tokenType, parseFlags);
 					end;
 				end;
