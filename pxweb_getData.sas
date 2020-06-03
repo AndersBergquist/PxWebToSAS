@@ -127,7 +127,7 @@ proc ds2;
 							j.getNextToken(rc, token, tokenType, parseFlags);
 							if j.ISLEFTBRACKET(tokenType) then j.getNextToken(rc, token, tokenType, parseFlags);
 							do until(j.ISRIGHTBRACKET(tokenType));
-								if notdigit(token)>0 then token=.;
+								if notdigit(token)=1 then token=.;
 								s_updateTmpTable.setdouble(i, token);
 								i=i+1;
 								c_index=c_index+1;
