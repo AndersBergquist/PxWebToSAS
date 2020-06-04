@@ -28,8 +28,8 @@ proc ds2;
 			c_exist=0;
 			s_updateTmpTable_exist=0;
 		end;
-		method hamtaData(varchar(500) iUrl, nvarchar(100000) jsonFraga, varchar(32) tmpTable, varchar(40) fullTabellNamn);
-			declare nvarchar(5000000) respons;
+		method hamtaData(varchar(500) iUrl, nvarchar(1000000) jsonFraga, varchar(32) tmpTable, varchar(40) fullTabellNamn);
+			declare nvarchar(15000000) respons;
 			declare varchar(150) loadMetadata;
 			declare integer tmpTableFinns fullTabellFinns p;
 
@@ -58,7 +58,7 @@ proc ds2;
 			parseSCBRespons(respons, tmpTable);
 		end;
 
-		method parseSCBRespons(nvarchar(5000000) iRespons, varchar(32) tmpTable);
+		method parseSCBRespons(nvarchar(15000000) iRespons, varchar(32) tmpTable);
 			declare package json j();
 			declare integer rc tokenType parseFlags i sc tid_dt;
 			*declare double tid;
@@ -158,6 +158,10 @@ proc ds2;
 			tid_dt=mdy(manad,1,ar);
 			return tid_dt;
 		end; *cretateTidsvariabler;
+
+		method closeTable();
+			s_updateTmpTable.delete();
+		end; *closeTable;
 
 
 	endpackage;

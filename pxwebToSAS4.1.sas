@@ -13,28 +13,40 @@ proc ds2;
 		declare package work.pxweb_UppdateTableDate SCB_Date();
 		declare package work.pxweb_makeJsonFraga SCB_GetJsonFraga();
 		declare package work.pxweb_getData SCB_getData();
-		declare nvarchar(100000) jsonFraga;
+		declare package work.pxweb_gemensammametoder g();
+		declare nvarchar(1000000) jsonFraga;
+		declare integer defaultMaxCells;
 
 		forward getDataStart;
 
 		method pxwebtosas4();
-
+			defaultMaxCells=50000;
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(varchar(500) inUrl);
 			declare varchar(32) SASTabell tmpTable libname;
 			declare integer maxCells;
-			maxCells=50000;
+			maxCells=defaultMaxCells;
 			tmpTable=scan(inUrl, -1, '/') || strip(put(time(),8.));
 			SASTabell=scan(inUrl, -1, '/');
 			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
 
 		end;
 
+		method getData(varchar(500) inUrl, varchar(8) SASLib);
+			declare varchar(32) SASTabell tmpTable libname;
+			declare integer maxCells;
+			maxCells=defaultMaxCells;
+			tmpTable=scan(inUrl, -1, '/') || strip(put(time(),8.));
+			SASTabell=scan(inUrl, -1, '/');
+			getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
+
+		end;
+
 		method getData(varchar(500) inUrl, varchar(8) SASLib, varchar(32) SASTabell);
 			declare integer maxCells;
 			declare varchar(32) tmpTable;
-			maxCells=50000;
+			maxCells=defaultMaxCells;
 			tmpTable=scan(inUrl, -1, '/') || strip(put(time(),8.));
 			getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
 		end;
@@ -42,14 +54,14 @@ proc ds2;
 		method getData(varchar(500) inUrl, integer maxCells, varchar(8) SASLib, varchar(32) SASTabell, varchar(32) tmpTable);
 			getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
 		end;
-
+/*
 		method getData(varchar(500) inUrl, varchar(32) tmpTable);
 			declare varchar(32) SASTabell libname;
 			declare integer maxCells;
-			maxCells=50000;
+			maxCells=defaultMaxCells;
 			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
 		end;
-
+*/
 		method getData(varchar(500) inUrl, integer maxCells, varchar(32) tmpTable);
 			declare varchar(32) SASTabell;
 			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
@@ -65,7 +77,7 @@ proc ds2;
 			declare varchar(41) fullTabellNamn;
 			declare varchar(250) fraga;
 			declare integer ud rc i x ;
-			declare integer starttid runTime;
+			declare integer starttid runTime loopStart;
 
 			starttid=time();
 
@@ -82,11 +94,19 @@ proc ds2;
 				rc=hi_jsonFragor.first([jsonFraga]);
 				i=1;
 				do until(hi_jsonFragor.next([jsonFraga]));
-put 'Fråga nr:' i;
+					loopStart=time();
 					SCB_getData.hamtaData(iUrl, jsonFraga, tmpTable, fullTabellNamn);
-				i=i+1;
+					do while(time()-loopstart < 1);
+					end;
 				end;
+				SCB_getData.closeTable();
+				if g.finnsTabell(fullTabellNamn)^=0 then sqlexec('INSERT INTO ' || fullTabellNamn || ' SELECT * FROM work.' || tmpTable);
+				else sqlexec('SELECT * INTO ' || fullTabellNamn || ' FROM work.' || tmpTable || '');
+				sqlexec('DROP TABLE work.' || tmpTable);
+				sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
+				sqlexec('DROP TABLE work.json_' || tmpTable || ';');
 				ud=1;
+*Uppdatera sas-tabellen.;
 			end;
 			else do;
 				put 'pxWebToSAS.getDataStart: Det finns ingen uppdatering till' fullTabellNamn;

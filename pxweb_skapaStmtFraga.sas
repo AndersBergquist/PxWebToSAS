@@ -80,7 +80,7 @@ proc ds2;
 				end;
 				j.getNextToken(rc,token,tokenType,parseFlags);
 			end;
-			sqlInsert=sqlInsert || ')' || sqlValues || ')';
+			sqlInsert=sqlInsert || ' , UPPDATERAT_DTTM)' || sqlValues || ', datetime())';
 		end;*S_prepare end;
 
 endpackage;* pxweb_skapaStmtFraga;

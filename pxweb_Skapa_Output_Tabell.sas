@@ -83,7 +83,7 @@ proc ds2;
 				if anydigit(strip(values))=1 then values = '_' || strip(values);
 				sqlfraga=sqlfraga || ', ' || values || ' double having label ''' || valueTexts || '''';
 			end;
-			sqlfraga=sqlfraga || ')';
+			sqlfraga=sqlfraga || ', UPPDATERAT_DTTM timestamp having label ''Tid för dataladdning'' format datetime16. )';
 			sqlExec(sqlfraga);
 
 		end;*skapaTabell;
