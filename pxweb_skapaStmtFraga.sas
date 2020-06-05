@@ -1,5 +1,5 @@
 proc ds2;
-	package work.pxweb_skapaStmtFraga / overwrite=yes;
+	package &prgLib..pxweb_skapaStmtFraga / overwrite=yes;
 
 		method pxweb_skapaStmtFraga();
 
@@ -7,7 +7,7 @@ proc ds2;
 		
 		method prepare_s(in_out nvarchar(5000000) iRespons, in_out varchar(32) tmpTable, in_out varchar(1000) sqlinsert, in_out integer d, in_out integer c);
 			declare package json j();
-			declare package work.pxweb_GemensammaMetoder g_metoder();
+			declare package &prgLib..pxweb_GemensammaMetoder g_metoder();
 			declare varchar(1000) sqlValues valueString;
 			declare varchar(250) token code text comment type unit;
 			declare integer rc tokenType parseFlags tmpCeller loopNr;

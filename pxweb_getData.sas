@@ -9,10 +9,10 @@ Innehåller:
 
 
 proc ds2;
-	package work.pxweb_getData / overwrite=yes;
-		declare package work.pxweb_GemensammaMetoder g();
-		declare package work.pxweb_skapaOutputTabell skapaOutputTabell();
-		declare package pxweb_skapaStmtFraga skapaStmtFraga(); 
+	package &prgLib..pxweb_getData / overwrite=yes;
+		declare package &prgLib..pxweb_GemensammaMetoder g();
+		declare package &prgLib..pxweb_skapaOutputTabell skapaOutputTabell();
+		declare package &prgLib..pxweb_skapaStmtFraga skapaStmtFraga(); 
 		declare package hash h_valuesdata();
 		declare package hash h_valuesIndex();
 		declare package sqlstmt s_updateTmpTable;

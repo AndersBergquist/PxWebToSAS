@@ -9,9 +9,9 @@ Innehåller:
 
 
 proc ds2;
-	package work.pxweb_skapaOutputTabell / overwrite=yes;
-		declare package work.pxweb_GemensammaMetoder g();
-		declare package work.pxweb_getMetaData getMeta();
+	package &prgLib..pxweb_skapaOutputTabell / overwrite=yes;
+		declare package &prgLib..pxweb_GemensammaMetoder g();
+		declare package &prgLib..pxweb_getMetaData getMeta();
 		declare package hash h_content();
 		declare package hiter hi_content(h_content);
 		declare package hash h_metadata();

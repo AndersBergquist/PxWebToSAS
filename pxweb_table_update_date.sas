@@ -8,8 +8,8 @@ Uppgift:
 
 
 proc ds2;
-	package work.pxweb_UppdateTableDate / overwrite=yes;
-		declare package work.pxweb_GemensammaMetoder g();
+	package &prgLib..pxweb_UppdateTableDate / overwrite=yes;
+		declare package &prgLib..pxweb_GemensammaMetoder g();
 		declare double dbUpdated;
 		declare nvarchar(25) tid;
 		forward askSCB extractSCBDate;

@@ -12,7 +12,7 @@ Innehåller:
 
 
 proc ds2;
-	package work.pxweb_GemensammaMetoder / overwrite=yes;
+	package &prgLib..pxweb_GemensammaMetoder / overwrite=yes;
 		declare package http pxwebContent();
 		declare varchar(8) lib;
 		declare varchar(32) tabell tid;

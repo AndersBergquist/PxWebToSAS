@@ -6,9 +6,9 @@ Uppgift:
 - Skapar json-fråga till datahämtning
 ***********************************/
 proc ds2;
-	package work.pxweb_makeJsonFraga / overwrite=yes;
-		declare package work.pxweb_GemensammaMetoder g();
-		declare package work.pxweb_getMetaData getMetaData();
+	package &prgLib..pxweb_makeJsonFraga / overwrite=yes;
+		declare package &prgLib..pxweb_GemensammaMetoder g();
+		declare package &prgLib..pxweb_getMetaData getMetaData();
 		declare package hash h_subFragor();
 		declare package hash h_jsonFragor();
 		declare package hiter hi_jsonFragor(h_jsonFragor);

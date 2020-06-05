@@ -14,8 +14,8 @@ Följande externa metoder finns;
 
 ***********************************/
 proc ds2;
-	package work.pxweb_getMetaData / overwrite=yes;
-		declare package work.pxweb_GemensammaMetoder g();
+	package &prgLib..pxweb_getMetaData / overwrite=yes;
+		declare package &prgLib..pxweb_GemensammaMetoder g();
 		declare package hash h_metaData();
 		declare package hiter hi_metaData(h_metaData);
 		declare package hash h_dataStorlek();
