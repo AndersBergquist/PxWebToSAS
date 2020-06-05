@@ -47,11 +47,15 @@ proc ds2;
 
 		method getData(varchar(500) iUrl, varchar(100000) jsonFraga) returns nvarchar(1000000);
 			declare integer sc rc;
+declare varchar(100000) j2;
 			pxwebContent.createPostMethod(iUrl);
 			pxwebContent.setRequestContentType('application/json; charset=utf-8');
 			pxwebContent.setRequestBodyAsString(jsonFraga);
 			pxwebContent.executeMethod();
 			sc=pxwebContent.getStatusCode();
+j2=strip(jsonFraga);
+put '*******************************';
+put j2=;
 			if substr(sc,1,1) not in ('4' '5') then do;
 				pxwebContent.getResponseBodyAsString(respons, rc);
 				if rc=1 then do;
@@ -59,6 +63,7 @@ proc ds2;
 				end;
 			end;
 			else do;
+
 				respons='pxweb_GemensammaMetoder.getData(post): HTTP Error nr: ' || sc;
 			end;
 
