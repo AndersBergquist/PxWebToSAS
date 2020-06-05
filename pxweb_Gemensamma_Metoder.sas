@@ -2,12 +2,14 @@
 /****************************************
 Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 0.1
+Version: 4.0.0
 Uppgift:
 - Samla metoder som används av flera packet.
 Innehåller:
 - getData; getData(iURL), hämtar en responsfil från pxWeb med hjälp av Get.
 - finnsTabell, finnsTabell(iLib, iTabell), returnerar 0 om tabell ej finns och 1 om tabell finns.
+- getSenasteTid, getSenasteTid(fulltTabellnamn), returnerar senaste tiden för data i tabellen. 0 om tabellen inte finns.
+- kollaVariabelNamn, kollaVariabelNamn(in_out varchar code), lägger till _ om första tecknet i columnnmanet är ett tal.;
 ***********************************/
 
 

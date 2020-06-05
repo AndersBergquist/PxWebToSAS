@@ -1,3 +1,12 @@
+/****************************************
+Program: pxweb_skapaStmtFraga.sas
+Upphovsperson: Anders Bergquist, anders@fambergquist.se
+Version: 4.0.0
+Uppgift:
+- Skapar en fråga som används av sqlstmt för att uppdatera output tabellen med hämtad data.
+Innehåller:
+***********************************/
+
 proc ds2;
 	package &prgLib..pxweb_skapaStmtFraga / overwrite=yes;
 

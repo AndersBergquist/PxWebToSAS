@@ -1,9 +1,9 @@
 ﻿/****************************************
 Program: pxWeb_table_update_date.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 0.1
+Version: 4.0.0
 Uppgift:
-- Hämtar datum från tabellens uppdatering på SCB/PxWeb-site
+- Hämtar datum från tabellens uppdatering på SCB/PxWeb-site, returnerar resultatet.
 ***********************************/
 
 

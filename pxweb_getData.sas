@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_getData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 0.1
+Version: 4.0.0
 Uppgift:
 - Hämtar SCB:s Json, tolkar den och lägger resultatet i en tabell.
 Innehåller:

@@ -1,10 +1,10 @@
 /****************************************
 Program: pxwebToSAS4
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 0.1
+Version: 4.0.0
 
 - output:
-	1. Sätter makrot &update till 1 om uppdatering finns och 0 om det inte finns.
+	1. Lämnar returkod till 1 om uppdatering genomförts och 0 om den inte genomförts.
 ***********************************/
 proc ds2;
 	package &prgLib..pxWebToSAS4 / overwrite=yes;
@@ -53,20 +53,6 @@ proc ds2;
 		method getData(varchar(500) inUrl, integer maxCells, varchar(8) SASLib, varchar(32) SASTabell, varchar(32) tmpTable) returns integer;
 			declare integer upd;
 			upd=getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
-			return upd;
-		end;
-/*
-		method getData(varchar(500) inUrl, varchar(32) tmpTable);
-			declare varchar(32) SASTabell libname;
-			declare integer maxCells;
-			maxCells=defaultMaxCells;
-			getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
-		end;
-*/
-		method getData(varchar(500) inUrl, integer maxCells, varchar(32) tmpTable) returns integer;
-			declare varchar(32) SASTabell;
-			declare integer upd;
-			upd=getDataStart(inUrl, 'work', SASTabell, maxCells, tmpTable);
 			return upd;
 		end;
 

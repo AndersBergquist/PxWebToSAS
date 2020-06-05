@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_getMetaData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 0.1
+Version: 4.0.0
 Uppgift:
 - Hämtar metadata från SCB/PX-Web.
 Följande externa metoder finns;

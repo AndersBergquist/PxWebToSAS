@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_Skapa_Input_Tabell.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 0.1
+Version: 4.0.0
 Uppgift:
 - Skapar en tabell där indata från SCB lagras.
 Innehåller:
