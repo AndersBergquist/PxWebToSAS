@@ -254,7 +254,7 @@ proc ds2;
 			declare varchar(250) token;
 			declare varchar(25) senasteTid;
 			declare integer rc tokenType parseFlags tmpCeller divisor;
-
+*Senaste tid är där laghämtningen ska styras ifrån. Bra att redan nu hämtas bara senate data.;
 			senasteTid=g.getSenasteTid(fullTabellNamn);
 			antalCeller=1;
 
