@@ -1,4 +1,4 @@
-%let prgLib=SASUSER;
+%let prgLib=WORK;
 %macro setInstLib;
 	%global instLib;
     %if %symexist(_clientapp) %then %do;
