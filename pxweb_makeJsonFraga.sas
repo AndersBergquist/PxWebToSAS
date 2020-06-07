@@ -40,7 +40,7 @@ proc ds2;
 		end;
 
 		method skapaFrageHashHelper(int deep, int maxDeep, varchar(100000) qstring);
-			declare varchar(100000) v_qstring[500];
+			declare varchar(1000000) v_qstring[800];
 			declare varchar(1000000) local_qstring;
 			declare integer AntalFragor rc i k;
 			subCode=getMetaData.getLevelCode(deep);
