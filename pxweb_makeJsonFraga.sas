@@ -30,7 +30,7 @@ proc ds2;
 
 		method skapaFragehash();
 			declare integer maxDeep;
-
+*Pröva med att byta utdenna mot ett sqlstmt paclket.;
 			h_jsonFragor.keys([jsonFraga]);
 			h_jsonFragor.data([jsonFraga]);
 			h_jsonFragor.defineDone();;
