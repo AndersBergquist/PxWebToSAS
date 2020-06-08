@@ -28,11 +28,10 @@ proc ds2;
 			c_exist=0;
 			s_updateTmpTable_exist=0;
 		end;
-		method hamtaData(varchar(500) iUrl, nvarchar(1000000) jsonFraga, varchar(32) tmpTable, varchar(40) fullTabellNamn);
+		method hamtaData(varchar(500) iUrl, nvarchar(100000) jsonFraga, varchar(32) tmpTable, varchar(40) fullTabellNamn);
 			declare nvarchar(15000000) respons;
 			declare varchar(150) loadMetadata;
 			declare integer tmpTableFinns fullTabellFinns p;
-
 			tmpTableFinns=g.finnsTabell('work', tmpTable);
 			fullTabellFinns=g.finnsTabell(fullTabellNamn);
 
@@ -44,7 +43,6 @@ proc ds2;
 				h_exist=1;
 *				h_valuesdata.output('work.hashlookup');
 			end;
-
 			if tmpTableFinns=0 then do;
 				skapaOutputTabell.skapaOutputTabell(tmpTable, fullTabellNamn);
 			end;

@@ -13,7 +13,7 @@ proc ds2;
 			url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/NV/NV1701/NV1701B/NV1701T5BM';
 			url0='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy';
 
-			px.getData(url1,'work');
+			px.getData(url4,'work');
 		end;
 	enddata;
 run;quit;
