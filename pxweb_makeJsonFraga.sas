@@ -16,7 +16,7 @@ proc ds2;
 		declare package sqlstmt s_countJsonFragor;
 		declare varchar(250) subCode;
 		declare varchar(25000) subFraga;
-		declare varchar(100000) jsonFraga;
+		declare varchar(10000) jsonFraga;
 		declare integer numJsonFragor;
 		forward skapaSubFraga skapaFragehash skapaFrageHashHelper skapaFrageHashHelper2 countRows;
 
@@ -48,12 +48,13 @@ proc ds2;
 		end;
 
 		method skapaFrageHashHelper(int deep, int maxDeep, varchar(100000) qstring);
-			declare varchar(1000000) v_qstring[800];
-			declare varchar(1000000) local_qstring;
+			declare varchar(100000) v_qstring[800];
+			declare varchar(100000) local_qstring;
 			declare integer AntalFragor rc i k;
 			subCode=getMetaData.getLevelCode(deep);
         ** Läser in frågorna till vektor. Start **;
 			antalFragor=0;
+*h_subFragor.output('work.subfragor');
 			rc=h_subFragor.find([subCode],[subCode, subFraga]);
 			do while(rc=0);
 				antalFragor=antalFragor+1;

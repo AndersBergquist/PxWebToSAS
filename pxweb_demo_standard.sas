@@ -3,7 +3,7 @@
 proc ds2;
 	data _null_;
 		declare package work.pxWebToSAS4 px();
-		declare varchar(500) url0 url1 url2 url3 url4;
+		declare varchar(500) url0 url1 url2 url3 url4 urlX;
 		declare integer upd;
 	
 		method run();
@@ -13,7 +13,7 @@ proc ds2;
 			url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/NV/NV1701/NV1701B/NV1701T5BM';
 			url0='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy';
 
-			px.getData(url4,'work');
+			px.getData(urlx,'work');
 		end;
 	enddata;
 run;quit;

@@ -18,7 +18,7 @@ proc ds2;
 		declare package http pxwebContent();
 		declare varchar(8) lib;
 		declare varchar(32) tabell tid;
-		declare nvarchar(1000000) respons;
+		declare nvarchar(15000000) respons;
 		declare integer antal;
 
 		forward finnsTabellHelper;
@@ -28,7 +28,7 @@ proc ds2;
 		end;
 
 		method getData(varchar(500) iUrl) returns varchar(100000);*Hämtar metadata fr�n SCB;
-		declare varchar(5000000) respons;
+		declare varchar(15000000) respons;
 		declare integer sc rc;
 		declare varchar(500) catalogURL;
 
@@ -45,8 +45,9 @@ proc ds2;
 		return respons;
 		end;
 
-		method getData(varchar(500) iUrl, varchar(100000) jsonFraga) returns nvarchar(1000000);
+		method getData(varchar(500) iUrl, varchar(100000) jsonFraga) returns nvarchar(15000000);
 			declare integer sc rc;
+			declare varchar(1000) endR;
 			pxwebContent.createPostMethod(iUrl);
 			pxwebContent.setRequestContentType('application/json; charset=utf-8');
 			pxwebContent.setRequestBodyAsString(jsonFraga);
@@ -59,10 +60,8 @@ proc ds2;
 				end;
 			end;
 			else do;
-
 				respons='pxweb_GemensammaMetoder.getData(post): HTTP Error nr: ' || sc;
 			end;
-
 		return respons;
 		end;* getData;
 
