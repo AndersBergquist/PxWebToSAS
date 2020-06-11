@@ -3,7 +3,7 @@
 proc ds2;
 	data _null_;
 		declare package work.pxWebToSAS4 px();
-		declare varchar(500) url0 url1 url2 url3 url4 urlX;
+		declare varchar(500) url0 url1 url2 url3 url4 urlKonj;
 		declare integer upd;
 	
 		method run();
@@ -12,8 +12,9 @@ proc ds2;
 			url2='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/NR/NR0103/NR0103E/NR0103ENS2010T01NA';
 			url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/NV/NV1701/NV1701B/NV1701T5BM';
 			url0='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy';
+			urlKonj='http://prognos.konj.se/PXWeb/api/v1/sv/SenastePrognosen/f21_arbetsmarknad/F2101.px';
 
-			px.getData(urlx,'work');
+			px.getData(urlKonj,'work');
 		end;
 	enddata;
 run;quit;
