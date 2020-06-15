@@ -9,12 +9,12 @@ proc ds2;
 		method run();
 			url4='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/AM/AM0401/AM0401A/NAKUBefolkning2M';
 			url3='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101J/Flyttningar';
-			url2='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/NR/NR0103/NR0103E/NR0103ENS2010T01NA';
-			url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/NV/NV1701/NV1701B/NV1701T5BM';
+			url2='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101H/FoddaK';
+			url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101I/DodaFodelsearK';
 			url0='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy';
 			urlKonj='http://prognos.konj.se/PXWeb/api/v1/sv/SenastePrognosen/f21_arbetsmarknad/F2101.px';
 
-			px.getData(urlKonj,'work');
+			px.getData(url4,'work');
 		end;
 	enddata;
 run;quit;

@@ -19,7 +19,7 @@ proc ds2;
 		forward getDataStart;
 
 		method pxwebtosas4();
-			defaultMaxCells=50000;
+			defaultMaxCells=100000;
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(varchar(500) inUrl) returns integer;
@@ -112,7 +112,6 @@ proc ds2;
 				sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
 				sqlexec('DROP TABLE work.json_' || tmpTable || ';');
 				ud=0;
-*Uppdatera sas-tabellen.;
 			end;
 			else do;
 				put 'pxWebToSAS.getDataStart: Det finns ingen uppdatering till' fullTabellNamn;
