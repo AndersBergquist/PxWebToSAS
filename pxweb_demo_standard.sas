@@ -14,7 +14,7 @@ proc ds2;
 			url0='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy';
 			urlKonj='http://prognos.konj.se/PXWeb/api/v1/sv/SenastePrognosen/f21_arbetsmarknad/F2101.px';
 
-			px.getData(url3, 'work');
+			px.getData(url0, 'work');
 		end;
 	enddata;
 run;quit;
