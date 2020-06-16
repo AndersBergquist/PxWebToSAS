@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_getMetaData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.0
+Version: 4.0.4
 Uppgift:
 - Hämtar metadata från SCB/PX-Web.
 Följande externa metoder finns;
@@ -75,10 +75,10 @@ proc ds2;
 		end;
 
 		method getAntalFragor() returns integer;
-			declare integer antalCeller antalFragor;
-
+			declare integer antalCeller antalFragor maxCeller;
+			maxCeller=100000;
 			antalCeller=getAntalCeller();
-			antalFragor=round((antalCeller/50000)+0.5);
+			antalFragor=round((antalCeller/maxCeller)+0.5);
 			return antalFragor;
 		end;
 ** dataStorlek, start;

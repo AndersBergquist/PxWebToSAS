@@ -1,8 +1,8 @@
 ﻿
 /****************************************
 Program: pxweb_GemensammaMetoder.sas
-Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.0
+Upphovsperson: Andeputrs Bergquist, anders@fambergquist.se
+Version: 4.0.4
 Uppgift:
 - Samla metoder som används av flera packet.
 Innehåller:
@@ -56,7 +56,7 @@ proc ds2;
 			if substr(sc,1,1) not in ('4' '5') then do;
 				pxwebContent.getResponseBodyAsString(respons, rc);
 				if rc=1 then do;
-					respons='pxweb_GemensammaMetoder.getData(post): Något gick fel för att responssträngen kunde inte hittas.';
+					respons='pxweb_GemensammaMetoder.getData(post): Något gick fel för att responssträngen kunde inte hittas. Error: 111';
 				end;
 			end;
 			else do;
@@ -110,7 +110,6 @@ proc ds2;
 				qc=c.execute();
 				c.bindresults([tid]);
 				rc=c.fetch();
-put sc= qc= rc= tid=;
 				if tid>0 then do;
 					sqlMax='select max(tid_cd) as tid from ' || fullTabellNamn;
 					s.prepare(sqlMax);

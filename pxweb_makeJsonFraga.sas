@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_makeJsonFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.0
+Version: 4.0.4
 Uppgift:
 - Skapar json-fråga till datahämtning och lagrar frågorna i filen work.json_tmpTabell;
 ***********************************/

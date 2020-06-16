@@ -1,7 +1,7 @@
 /****************************************
 Program: pxwebToSAS4
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.0
+Version: 4.0.4
 
 - output:
 	1. Lämnar returkod till 1 om uppdatering genomförts och 0 om den inte genomförts.
@@ -98,8 +98,9 @@ proc ds2;
 					loopStart=time();
 					if jsonFraga^='' then rc=SCB_getData.hamtaData(iUrl, jsonFraga, tmpTable, fullTabellNamn);
 					do while(time()-loopstart < 1);
-					end;				
+					end;
 				end;
+				if rc=101 then rc=0;
 				SCB_getData.closeTable();
 				s_jsonGet.delete();
 				if rc=300 or rc=301 then do;
@@ -108,10 +109,11 @@ proc ds2;
 				end;
 				if g.finnsTabell(fullTabellNamn)^=0 then sqlexec('INSERT INTO ' || fullTabellNamn || ' SELECT * FROM work.' || tmpTable);
 				else sqlexec('SELECT * INTO ' || fullTabellNamn || ' FROM work.' || tmpTable || '');
-				sqlexec('DROP TABLE work.' || tmpTable);
-				sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
-				sqlexec('DROP TABLE work.json_' || tmpTable || ';');
-				ud=0;
+
+				if g.finnsTabell('work.' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.' || tmpTable);
+				if g.finnsTabell('work.meta_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
+				if g.finnsTabell('work.json_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.json_' || tmpTable || ';');
+				ud=rc;
 			end;
 			else do;
 				put 'pxWebToSAS.getDataStart: Det finns ingen uppdatering till' fullTabellNamn;

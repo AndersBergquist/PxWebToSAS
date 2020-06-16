@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_skapaStmtFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.0
+Version: 4.0.4
 Uppgift:
 - Skapar en fråga som används av sqlstmt för att uppdatera output tabellen med hämtad data.
 Innehåller:

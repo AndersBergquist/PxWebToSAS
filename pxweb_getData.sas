@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_getData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.0
+Version: 4.0.4
 Uppgift:
 - Hämtar SCB:s Json, tolkar den och lägger resultatet i en tabell.
 Innehåller:
@@ -47,13 +47,16 @@ proc ds2;
 				skapaOutputTabell.skapaOutputTabell(tmpTable, fullTabellNamn);
 			end;
 			respons=g.getData(iUrl, jsonFraga);
-			if substr(respons,1,38)='pxweb_GemensammaMetoder.getData(post):' then put respons;
-			if s_updateTmpTable_exist = 0 then do;
+			if substr(respons,1,38)='pxweb_GemensammaMetoder.getData(post):' then do; 
+				put respons;
+				returnCode=substr(respons,length(respons)-3);
+			end;
+			else if s_updateTmpTable_exist = 0 then do;
 				skapaStmtFraga.prepare_s(respons, tmpTable, sqlInsert, d, c);
 				s_updateTmpTable_exist=1;
 				s_updateTmpTable = _new_ sqlstmt(sqlInsert);
+				returnCode=parseSCBRespons(respons, tmpTable);
 			end;
-			returncode=parseSCBRespons(respons, tmpTable);
 			return returnCode;
 		end;
 
