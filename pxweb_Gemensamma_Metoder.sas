@@ -99,21 +99,29 @@ proc ds2;
 
 		method getSenasteTid(varchar(40) fullTabellNamn) returns varchar(32);
 			declare	package sqlstmt s();
-			declare varchar(93) sqlMax;
-			declare integer tabellFinns rc;
+			declare package sqlstmt c();
+			declare varchar(95) sqlMax sqlCount;
+			declare integer tabellFinns rc sc qc;
 
 			tabellFinns=finnsTabell(scan(fullTabellNamn,1,'.'), scan(fullTabellNamn,2,'.'));
 			if tabellFinns=1 then do;
-				sqlMax='select max(tid_cd) as tid from ' || fullTabellNamn;
-				s.prepare(sqlMax);
-				s.execute();
-				s.bindresults([tid]);
-				rc=s.fetch();
+				sqlCount='select count(tid_cd) as tid from ' || fullTabellNamn;
+				sc=c.prepare(sqlCount);
+				qc=c.execute();
+				c.bindresults([tid]);
+				rc=c.fetch();
+put sc= qc= rc= tid=;
+				if tid>0 then do;
+					sqlMax='select max(tid_cd) as tid from ' || fullTabellNamn;
+					s.prepare(sqlMax);
+					s.execute();
+					s.bindresults([tid]);
+					rc=s.fetch();
+				end;
 			end;
 			else do;
 				tid=0;
 			end;
-
 		return tid;
 		end;*getDBDate;
 
