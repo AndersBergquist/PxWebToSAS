@@ -141,7 +141,6 @@ proc ds2;
 					iMetaData=iMetaData+1;
 					end;
 					if (rundaNr^=cellerPerValue and rundaNr^=0) then do;
-put stubFraga= rundaNr= cellerPerValue= iMetaData= sizeMetaData=;
 						stubFraga=stubFraga || ']}}';
 						subFraga=stubFraga;
 						h_subFragor.add([subCode],[subCode, subFraga]);
