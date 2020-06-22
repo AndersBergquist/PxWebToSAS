@@ -7,7 +7,6 @@ Uppgift:
 Innehåller:
 ***********************************/
 
-
 proc ds2;
 	package &prgLib..pxweb_skapaOutputTabell / overwrite=yes;
 		declare package &prgLib..pxweb_GemensammaMetoder g();

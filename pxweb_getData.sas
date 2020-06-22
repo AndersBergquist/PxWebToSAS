@@ -7,7 +7,6 @@ Uppgift:
 Innehåller:
 ***********************************/
 
-
 proc ds2;
 	package &prgLib..pxweb_getData / overwrite=yes;
 		declare package &prgLib..pxweb_GemensammaMetoder g();
@@ -46,9 +45,11 @@ proc ds2;
 				skapaOutputTabell.skapaOutputTabell(tmpTable, fullTabellNamn);
 			end;
 			respons=g.getData(iUrl, jsonFraga);
+*put 'substr1';
 			if substr(respons,1,38)='pxweb_GemensammaMetoder.getData(post):' then do; 
 				put respons;
 				returnCode=substr(respons,length(respons)-3);
+*put 'substr2';
 			end;
 			else if s_updateTmpTable_exist = 0 then do;
 				skapaStmtFraga.prepare_s(respons, tmpTable, sqlInsert, d, c);
@@ -153,7 +154,7 @@ proc ds2;
 				manad=1;
 			end;
 			else if lowCase(tid_nm) = 'kvartal' then do;
-				manad=substr(tid_cd,6,2)*3-2;
+				manad=substr(tid_cd,6,1)*3-2;
 			end;
 			else if lowCase(tid_nm) = 'månad' then do;
 				manad=substr(tid_cd,6,2);

@@ -1,5 +1,4 @@
-﻿
-/****************************************
+﻿/****************************************
 Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Andeputrs Bergquist, anders@fambergquist.se
 Version: 4.0.9

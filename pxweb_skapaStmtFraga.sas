@@ -14,7 +14,7 @@ proc ds2;
 
 		end;
 		
-		method prepare_s(in_out nvarchar iRespons, in_out nvarchar) tmpTable, in_out nvarchar sqlinsert, in_out integer d, in_out integer c);
+		method prepare_s(in_out nvarchar iRespons, in_out nvarchar tmpTable, in_out nvarchar sqlinsert, in_out integer d, in_out integer c);
 			declare package json j();
 			declare package &prgLib..pxweb_GemensammaMetoder g_metoder();
 			declare nvarchar(1000) sqlValues valueString;
