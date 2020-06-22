@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxWeb_table_update_date.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.4
+Version: 4.0.9
 Uppgift:
 - Hämtar datum från tabellens uppdatering på SCB/PxWeb-site, returnerar resultatet.
 ***********************************/
@@ -18,11 +18,11 @@ proc ds2;
 
 		end;
 
-		method getSCBDate(varchar(500) iUrl) returns double;
+		method getSCBDate(nvarchar(500) iUrl) returns double;
 			declare double datum dtime;
-			declare varchar(100000) respons;
+			declare nvarchar(100000) respons;
 			declare char(19) datetext;
-			declare varchar(150) catalogUrl;
+			declare nvarchar(150) catalogUrl;
 			catalogUrl=tranwrd(iUrl,scan(iUrl,-1,'/'),'');
 			respons=g.getData(catalogUrl);
 			if respons^='Error' then do;
@@ -36,9 +36,9 @@ proc ds2;
 		return dtime;
 		end; *getSCBDate;;
 
-		method extractSCBDate(varchar(500) iURL, varchar(100000) respons) returns char(19);
-			declare varchar(500) tableName;
-			declare char(19) updateDatum;
+		method extractSCBDate(nvarchar(500) iURL, nvarchar(100000) respons) returns nchar(19);
+			declare nvarchar(500) tableName;
+			declare nchar(19) updateDatum;
 			declare package json j();
 			declare integer tokenType parseFlags rc;
 			declare nvarchar(250) token;
@@ -68,7 +68,7 @@ proc ds2;
 
 		method getDBDate(varchar(40) fullTabellNamn) returns double;
 			declare	package sqlstmt s();
-			declare varchar(93) sqlMax;
+			declare nvarchar(93) sqlMax;
 
 			dbUpdated=g.finnsTabell(scan(fullTabellNamn,1,'.'), scan(fullTabellNamn,2,'.'));
 			if dbUpdated=1 then do;

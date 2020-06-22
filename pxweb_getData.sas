@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_getData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.4
+Version: 4.0.9
 Uppgift:
 - Hämtar SCB:s Json, tolkar den och lägger resultatet i en tabell.
 Innehåller:
@@ -16,9 +16,9 @@ proc ds2;
 		declare package hash h_valuesdata();
 		declare package hash h_valuesIndex();
 		declare package sqlstmt s_updateTmpTable;
-		declare char(1) dtype;
-		declare varchar(250) values valuetexts code kolNamn kolTexts;
-		declare varchar(1000) sqlInsert;
+		declare nchar(1) dtype;
+		declare nvarchar(250) values valuetexts code kolNamn kolTexts;
+		declare nvarchar(1000) sqlInsert;
 		declare integer h_exist c_exist c_index s_updateTmpTable_exist c d returnCode;
 
 		forward parseSCBRespons cretateTidsvariabler prepare_s;
@@ -28,9 +28,9 @@ proc ds2;
 			c_exist=0;
 			s_updateTmpTable_exist=0;
 		end;
-		method hamtaData(varchar(500) iUrl, nvarchar(10000) jsonFraga, varchar(32) tmpTable, varchar(40) fullTabellNamn) returns integer;
+		method hamtaData(nvarchar(500) iUrl, nvarchar(10000) jsonFraga, nvarchar(32) tmpTable, nvarchar(40) fullTabellNamn) returns integer;
 			declare nvarchar(15000000) respons;
-			declare varchar(150) loadMetadata;
+			declare nvarchar(150) loadMetadata;
 			declare integer tmpTableFinns fullTabellFinns p i;
 			tmpTableFinns=g.finnsTabell('work', tmpTable);
 			fullTabellFinns=g.finnsTabell(fullTabellNamn);
@@ -41,7 +41,6 @@ proc ds2;
 				h_valuesdata.dataset('{select strip(code) as code, strip("values") as "values", strip(valuetexts) as valuetexts from work.meta_' || tmpTable || ';}');
 				h_valuesdata.definedone();
 				h_exist=1;
-*				h_valuesdata.output('work.hashlookup');
 			end;
 			if tmpTableFinns=0 then do;
 				skapaOutputTabell.skapaOutputTabell(tmpTable, fullTabellNamn);
@@ -61,14 +60,12 @@ proc ds2;
 			return returnCode;
 		end;
 
-		method parseSCBRespons(nvarchar(15000000) iRespons, varchar(32) tmpTable) returns integer;
+		method parseSCBRespons(nvarchar(15000000) iRespons, nvarchar(32) tmpTable) returns integer;
 			declare package json j();
 			declare integer rc tokenType parseFlags i sc returnCode;
 			declare double tid_dt;
-			*declare double tid;
 			declare nvarchar(500) token ;
 			rc=j.createParser(iRespons);
-*			j.getNextToken(rc, token, tokenType, parseFlags);
 			do while(rc=0 or rc=100);
 				if token='columns' and c_exist=0 then do;
 					c_index=0;
@@ -82,12 +79,10 @@ proc ds2;
 								c_index=c_index+1;
 								j.getNextToken(rc, token, tokenType, parseFlags);
 								kolNamn=token;
-	*							h_valuesIndex.add([c_index],[c_index values dtype]);
 							end;
 							if token='type' then do;
 								j.getNextToken(rc, token, tokenType, parseFlags);
 								dtype=token;
-	*							h_valuesIndex.replace([c_index],[c_index values dtype]);
 							end;
 							if token='text' then do;
 								j.getNextToken(rc, token, tokenType, parseFlags);
@@ -99,7 +94,6 @@ proc ds2;
 						h_valuesIndex.add([c_index],[c_index kolNamn kolTexts dtype]);
 						j.getNextToken(rc, token, tokenType, parseFlags);
 					end;
-*				h_valuesIndex.output('work.valuesIndex');
 				c_exist=1;
 				end;
 				if token='data' then do;
@@ -152,7 +146,7 @@ proc ds2;
 		return returnCode;
 		end;
 
-		method cretateTidsvariabler(varchar(250) tid_cd, varchar(250) tid_nm) returns double;
+		method cretateTidsvariabler(nvarchar(250) tid_cd, nvarchar(250) tid_nm) returns double;
 		declare double manad ar tid_dt;
 			ar=substr(tid_cd,1,4);
 			if lowCase(tid_nm) = 'år' then do;

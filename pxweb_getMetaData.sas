@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_getMetaData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.4
+Version: 4.0.9
 Uppgift:
 - Hämtar metadata från SCB/PX-Web.
 Följande externa metoder finns;
@@ -25,15 +25,15 @@ proc ds2;
 		declare package hash h_contentSum();
 		declare package hiter hi_contentSum(h_contentSum);
 		declare integer radNr antal antalCeller cellerPerValue antalVar;
-		declare varchar(250) title code text values valueTexts elimination "time" subCode oldCode;
-		declare varchar(25000) subFraga;
+		declare nvarchar(250) title code text values valueTexts elimination "time" subCode oldCode;
+		declare nvarchar(25000) subFraga;
 
 		forward getJsonMeta parseJsonMeta printData skapaMetadataSamling skapaFrageStorlek;
 		method pxweb_getMetaData();
 		end;
 
-		method getData(varchar(500) iUrl, integer maxCells, varchar(41) fullTabellNamn, varchar(32) tmpTable);
-			declare varchar(25000) respons;
+		method getData(nvarchar(500) iUrl, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
+			declare nvarchar(25000) respons;
 			respons=g.getData(iUrl);
 			parseJsonMeta(respons, maxCells, fullTabellNamn);
 			skapaMetadataSamling();
@@ -42,17 +42,17 @@ proc ds2;
 		end;*skapaFraga;
 
 ** Skriver ut metadatatabellen, start **;
-		method printMetaData(varchar(40) libTable);
+		method printMetaData(nvarchar(40) libTable);
 			printData(libTable);
 		end;
 
-		method printMetaData(varchar(8) lib, varchar(32) tabell);
-			declare varchar(40) libTable;
+		method printMetaData(nvarchar(8) lib, nvarchar(32) tabell);
+			declare nvarchar(40) libTable;
 			libTable=lib || '.' || tabell;
 			printData(libTable);
 		end;
 
-		method printData(varchar(40) libTable);
+		method printData(nvarchar(40) libTable);
 			h_metaData.output(libTable);
 		end;
 ** Skriver ut metadatatabellen, slut **;
@@ -83,20 +83,20 @@ proc ds2;
 		end;
 ** dataStorlek, start;
 	**************** VARFÖR BEHÖVS TVÅ EX AV DESSA************************************;
-		method dataStorlekFirst(in_out varchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
+		method dataStorlekFirst(in_out nvarchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
 			hi_dataStorlek.first([code, radNr,CellerPerValue]);
 			io_code=code;
 			io_radNr=radNr;
 			io_CellerPerValue=CellerPerValue;
 		end;
-		method dataStorlekFirst(in_out varchar i_code, in_out integer i_antalCeller);
+		method dataStorlekFirst(in_out nvarchar i_code, in_out integer i_antalCeller);
 			code=i_code;
 			antalCeller=i_antalCeller;
 			hi_dataStorlek.first([code, antal, antalCeller]);
 			i_code=code;
 			i_antalCeller=antalCeller;
 		end;
-		method dataStorlekNext(in_out varchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
+		method dataStorlekNext(in_out nvarchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
 		declare integer rc;
 			hi_dataStorlek.next([code, radNr, CellerPerValue]);
 			io_code=code;
@@ -104,7 +104,7 @@ proc ds2;
 			io_CellerPerValue=CellerPerValue;
 		end;
 
-		method dataStorlekNext(in_out varchar i_code, in_out integer i_antalCeller);
+		method dataStorlekNext(in_out nvarchar i_code, in_out integer i_antalCeller);
 			code=i_code;
 			antalCeller=i_antalCeller;
 			hi_dataStorlek.next([code, antal, antalCeller]);
@@ -120,7 +120,7 @@ proc ds2;
 				end;
 			return numItem;
 		end;
-		method getLevelCode(integer level) returns varchar(250);
+		method getLevelCode(integer level) returns nvarchar(250);
 			declare integer i;
 			do i=1 to level;
 				if i=1 then do;
@@ -136,7 +136,7 @@ proc ds2;
 
 *** Metoder för att hämta data ur hashtabellerna. start;
 ** metaData, start;
-		method metaDataFirst(in_out varchar io_title, in_out varchar io_code, in_out varchar io_text, in_out varchar io_values, in_out varchar io_valueTexts, in_out varchar io_elimination, in_out varchar io_time);
+		method metaDataFirst(in_out nvarchar io_title, in_out nvarchar io_code, in_out nvarchar io_text, in_out nvarchar io_values, in_out nvarchar io_valueTexts, in_out nvarchar io_elimination, in_out nvarchar io_time);
 			hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
 			io_title=title;
 			io_code=code;
@@ -146,7 +146,7 @@ proc ds2;
 			io_elimination=elimination;
 			io_time="time";
 		end;
-		method metaDataNext(in_out varchar io_title, in_out varchar io_code, in_out varchar io_text, in_out varchar io_values, in_out varchar io_valueTexts, in_out varchar io_elimination, in_out varchar io_time);
+		method metaDataNext(in_out nvarchar io_title, in_out nvarchar io_code, in_out nvarchar io_text, in_out nvarchar io_values, in_out nvarchar io_valueTexts, in_out nvarchar io_elimination, in_out nvarchar io_time);
 		declare integer rc;
 			hi_metaData.next([title, code, text, values, valueTexts, elimination, "time"]);
 			io_title=title;
@@ -250,12 +250,12 @@ proc ds2;
 
 ** Metoder för att hämta data från package, slut **;
 
-		method parseJsonMeta(varchar(25000) iRespons, integer maxCells, varchar(41) fullTabellNamn);
+		method parseJsonMeta(nvarchar(25000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn);
 			declare package hash parsMeta();
 			declare package hiter hi_parsMeta(parsMeta);
 			declare package json j();
-			declare varchar(250) token;
-			declare varchar(25) senasteTid;
+			declare nvarchar(250) token;
+			declare nvarchar(25) senasteTid;
 			declare integer rc tokenType parseFlags tmpCeller divisor;
 *Senaste tid är där laghämtningen ska styras ifrån. Bra att redan nu hämtas bara senate data.;
 			senasteTid=g.getSenasteTid(fullTabellNamn);

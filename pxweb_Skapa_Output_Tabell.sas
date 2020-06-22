@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_Skapa_Input_Tabell.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.4
+Version: 4.0.9
 Uppgift:
 - Skapar en tabell där indata från SCB lagras.
 Innehåller:
@@ -24,7 +24,7 @@ proc ds2;
 		method pxweb_skapaOutputTabell();
 		end;
 
-		method skapaOutputTabell(varchar(32) tmpTable, nvarchar(40) fullTabellNamn);
+		method skapaOutputTabell(nvarchar(32) tmpTable, nvarchar(40) fullTabellNamn);
 			if g.finnsTabell('work', tmpTable)=0 then do;
 				if g.finnsTabell(fullTabellNamn)=0 then do;
 					skapaTabell(tmpTable);
@@ -88,7 +88,7 @@ proc ds2;
 
 		end;*skapaTabell;
 
-		method identifieraTidsvariabler(varchar(250) tidTyp, varchar(250) code, varchar(250) text, integer len_Values, integer len_valueTexts, in_out varchar(250) tidString);
+		method identifieraTidsvariabler(nvarchar(250) tidTyp, nvarchar(250) code, nvarchar(250) text, integer len_Values, integer len_valueTexts, in_out nvarchar tidString);
 			if lowCase(tidTyp) in ('år', 'kvartal', 'månad') then do;
 					if lowCase(tidTyp)='år' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format year4.';
 					if lowCase(tidTyp)='kvartal' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yyq6.';
@@ -99,7 +99,7 @@ proc ds2;
 **Returnerar en sträng med tidsvariabelns variationer. t.ex år ger tid_dt och tid_cd och tid_num, månad ger tid_dt och tid_cd o.s.v.;
 		end;
 
-		method useExistingTable(varchar(32) tmpTable, nvarchar(40) fullTabellNamn);
+		method useExistingTable(nvarchar(32) tmpTable, nvarchar(40) fullTabellNamn);
 			declare varchar(250) sqlfraga;
 			sqlfraga='create table ' || tmpTable || ' as select * from ' || fullTabellNamn;
 			sqlExec(sqlfraga);

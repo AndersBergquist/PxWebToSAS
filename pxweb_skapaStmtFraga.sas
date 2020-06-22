@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_skapaStmtFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.4
+Version: 4.0.9
 Uppgift:
 - Skapar en fråga som används av sqlstmt för att uppdatera output tabellen med hämtad data.
 Innehåller:
@@ -14,11 +14,11 @@ proc ds2;
 
 		end;
 		
-		method prepare_s(in_out nvarchar(5000000) iRespons, in_out varchar(32) tmpTable, in_out varchar(1000) sqlinsert, in_out integer d, in_out integer c);
+		method prepare_s(in_out nvarchar iRespons, in_out nvarchar) tmpTable, in_out nvarchar sqlinsert, in_out integer d, in_out integer c);
 			declare package json j();
 			declare package &prgLib..pxweb_GemensammaMetoder g_metoder();
-			declare varchar(1000) sqlValues valueString;
-			declare varchar(250) token code text comment type unit;
+			declare nvarchar(1000) sqlValues valueString;
+			declare nvarchar(250) token code text comment type unit;
 			declare integer rc tokenType parseFlags tmpCeller loopNr;
 
 			rc=j.createparser(iRespons);

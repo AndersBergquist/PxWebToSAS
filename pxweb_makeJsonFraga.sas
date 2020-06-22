@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_makeJsonFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.4
+Version: 4.0.9
 Uppgift:
 - Skapar json-fråga till datahämtning och lagrar frågorna i filen work.json_tmpTabell;
 ***********************************/
@@ -14,16 +14,16 @@ proc ds2;
 		declare package hiter hi_jsonFragor(h_jsonFragor);
 		declare package sqlstmt s_jsonFragor;
 		declare package sqlstmt s_countJsonFragor;
-		declare varchar(250) subCode;
-		declare varchar(25000) subFraga;
-		declare varchar(10000) jsonFraga;
+		declare nvarchar(250) subCode;
+		declare nvarchar(25000) subFraga;
+		declare nvarchar(10000) jsonFraga;
 		declare integer numJsonFragor;
 		forward skapaSubFraga skapaFragehash skapaFrageHashHelper skapaFrageHashHelper2 countRows;
 
 		method pxweb_makeJsonFraga();
 		end;
 
-		method skapaFraga(varchar(500) iUrl, integer maxCells, varchar(41) fullTabellNamn, varchar(32) tmpTable);
+		method skapaFraga(nvarchar(500) iUrl, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
 			declare integer antalCodes;
 			getMetaData.getData(iURL, maxCells, fullTabellNamn, tmpTable);
 			skapaSubFraga();
@@ -32,9 +32,9 @@ proc ds2;
 *			h_jsonFragor.output('work.json_' || tmpTable);
 		end;
 
-		method skapaFragehash(varchar(32) tmpTable);
+		method skapaFragehash(nvarchar(32) tmpTable);
 			declare integer maxDeep;
-			declare varchar(1000) sql_skapajsontabell;
+			declare nvarchar(1000) sql_skapajsontabell;
 			sqlexec('create table work.json_' || tmpTable || ' (jsonFraga varchar(1000000))');
 			s_jsonFragor = _new_ sqlstmt('insert into work.json_' || tmpTable || '(jsonFraga) values(?)',[jsonFraga]);
 			
@@ -43,9 +43,9 @@ proc ds2;
 			s_jsonFragor.delete();
 		end;
 
-		method skapaFrageHashHelper(int deep, int maxDeep, varchar(100000) qstring);
-			declare varchar(100000) v_qstring[800];
-			declare varchar(100000) local_qstring;
+		method skapaFrageHashHelper(int deep, int maxDeep, nvarchar(100000) qstring);
+			declare nvarchar(100000) v_qstring[800];
+			declare nvarchar(100000) local_qstring;
 			declare integer AntalFragor rc i k;
 			subCode=getMetaData.getLevelCode(deep);
         ** Läser in frågorna till vektor. Start **;
@@ -77,8 +77,8 @@ proc ds2;
 		end;
 
 		method skapaSubFraga();
-			declare varchar(25000) stubFraga;
-			declare varchar(250) title code text values valueTexts elimination "time";
+			declare nvarchar(25000) stubFraga;
+			declare nvarchar(250) title code text values valueTexts elimination "time";
 			declare integer rundaNr iDataStorlek sizeDataStorlek iMetaData sizeMetaData antal cellerPerValue x;
 
 			h_subFragor.multidata('MULTIDATA');
@@ -92,13 +92,6 @@ proc ds2;
 			getMetaData.dataStorlekFirst(subCode,antal,cellerPerValue);
 			do until(iDataStorlek>sizeDataStorlek);
 				iMetaData=1;
-				* Alla variabler väljs;
-/*				if antal=cellerPerValue then do;
-					subFraga='{"code":"' || subCode || '", "selection":{"filter":"all", "values":["*"]}}';
-					h_subFragor.ref([subCode],[subCode, subFraga]);
-				end;
-				* En variabel i taget väljs;
-				else*/ 
 				if cellerPerValue=1 then do;
 					sizeMetaData=getMetaData.metaDataNumItem();
 					getMetaData.metaDataFirst(title, code, text, values, valueTexts, elimination, "time");

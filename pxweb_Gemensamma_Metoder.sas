@@ -2,7 +2,7 @@
 /****************************************
 Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Andeputrs Bergquist, anders@fambergquist.se
-Version: 4.0.4
+Version: 4.0.9
 Uppgift:
 - Samla metoder som används av flera packet.
 Innehåller:
@@ -16,8 +16,8 @@ Innehåller:
 proc ds2;
 	package &prgLib..pxweb_GemensammaMetoder / overwrite=yes;
 		declare package http pxwebContent();
-		declare varchar(8) lib;
-		declare varchar(32) tabell tid;
+		declare nvarchar(8) lib;
+		declare nvarchar(32) tabell tid;
 		declare nvarchar(15000000) respons;
 		declare integer antal;
 
@@ -27,14 +27,12 @@ proc ds2;
 
 		end;
 
-		method getData(varchar(500) iUrl) returns varchar(100000);*Hämtar metadata fr�n SCB;
-		declare varchar(15000000) respons;
+		method getData(nvarchar(500) iUrl) returns nvarchar(100000);*Hämtar metadata fr�n SCB;
 		declare integer sc rc;
-		declare varchar(500) catalogURL;
+		declare nvarchar(500) catalogURL x;
 
 			pxwebContent.createGetMethod(iUrl);
 			pxwebContent.executeMethod();
-
 			sc=pxwebContent.getStatusCode();
 	  	    if substr(sc,1,1) not in ('4', '5') then do;
 	           	pxwebContent.getResponseBodyAsString(respons, rc);
@@ -45,9 +43,8 @@ proc ds2;
 		return respons;
 		end;
 
-		method getData(varchar(500) iUrl, varchar(100000) jsonFraga) returns nvarchar(15000000);
+		method getData(nvarchar(500) iUrl, nvarchar(100000) jsonFraga) returns nvarchar(15000000);
 			declare integer sc rc;
-			declare varchar(1000) endR;
 			pxwebContent.createPostMethod(iUrl);
 			pxwebContent.setRequestContentType('application/json; charset=utf-8');
 			pxwebContent.setRequestBodyAsString(jsonFraga);
@@ -66,9 +63,9 @@ proc ds2;
 		end;* getData;
 
 **** FinnsTabell metoden start;
-		method finnsTabell(varchar(40) fullTabellNamn) returns integer;
-			declare varchar(8) iLib;
-			declare varchar(32) iTabell;
+		method finnsTabell(nvarchar(40) fullTabellNamn) returns integer;
+			declare nvarchar(8) iLib;
+			declare nvarchar(32) iTabell;
 			declare integer antal;
 			
 			iLib=scan(fullTabellNamn,1,'.');
@@ -77,14 +74,14 @@ proc ds2;
 			return antal;
 		end;
 
-		method finnsTabell(varchar(8) iLib, varchar(32) iTabell) returns integer;
+		method finnsTabell(nvarchar(8) iLib, nvarchar(32) iTabell) returns integer;
 			declare integer antal;
 
 			antal=finnsTabellHelper(iLib, Itabell);
 			return antal;
 		end;
 
-		method finnsTabellHelper(varchar(8) iLib, varchar(32) iTabell) returns integer;
+		method finnsTabellHelper(nvarchar(8) iLib, nvarchar(32) iTabell) returns integer;
 			declare package sqlstmt s('select count(*) as antal from dictionary.tables where TABLE_SCHEM=? AND table_name=?',[lib tabell]);
 
 			tabell=upcase(iTabell);
@@ -97,10 +94,10 @@ proc ds2;
 		end;*finnsTabell;
 **** FinnsTabell metoden slut;
 
-		method getSenasteTid(varchar(40) fullTabellNamn) returns varchar(32);
+		method getSenasteTid(nvarchar(40) fullTabellNamn) returns nvarchar(32);
 			declare	package sqlstmt s();
 			declare package sqlstmt c();
-			declare varchar(95) sqlMax sqlCount;
+			declare nvarchar(95) sqlMax sqlCount;
 			declare integer tabellFinns rc sc qc;
 
 			tabellFinns=finnsTabell(scan(fullTabellNamn,1,'.'), scan(fullTabellNamn,2,'.'));

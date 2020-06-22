@@ -1,10 +1,10 @@
 /****************************************
 Program: pxwebToSAS4
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.4
+Version: 4.0.9
 
 - output:
-	1. Lämnar returkod till 1 om uppdatering genomförts och 0 om den inte genomförts.
+	1. Lämnar returkod till 0 om uppdatering genomförts och 1 om den inte genomförts.
 ***********************************/
 proc ds2;
 	package &prgLib..pxWebToSAS4 / overwrite=yes;
@@ -13,7 +13,7 @@ proc ds2;
 		declare package &prgLib..pxweb_getData SCB_getData();
 		declare package &prgLib..pxweb_gemensammametoder g();
 		declare package sqlstmt s_jsonGet;
-		declare varchar(10000) jsonFraga;
+		declare nvarchar(10000) jsonFraga;
 		declare integer defaultMaxCells;
 
 		forward getDataStart;
@@ -22,9 +22,9 @@ proc ds2;
 			defaultMaxCells=100000;
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
-		method getData(varchar(500) inUrl) returns integer;
-			declare varchar(8) libname;
-			declare varchar(32) SASTabell tmpTable;
+		method getData(nvarchar(500) inUrl) returns integer;
+			declare nvarchar(8) libname;
+			declare nvarchar(32) SASTabell tmpTable;
 			declare integer maxCells upd;
 			maxCells=defaultMaxCells;
 			tmpTable=scan(scan(inUrl, -1, '/') || strip(put(time(),8.)), 1, '.');
@@ -33,9 +33,9 @@ proc ds2;
 			return upd;
 		end;
 
-		method getData(varchar(500) inUrl, varchar(8) SASLib) returns integer;
-			declare varchar(8) libname;
-			declare varchar(32) SASTabell tmpTable;
+		method getData(nvarchar(500) inUrl, nvarchar(8) SASLib) returns integer;
+			declare nvarchar(8) libname;
+			declare nvarchar(32) SASTabell tmpTable;
 			declare integer maxCells upd;
 			maxCells=defaultMaxCells;
 			tmpTable=scan(scan(inUrl, -1, '/') || strip(put(time(),8.)), 1, '.');
@@ -44,27 +44,27 @@ proc ds2;
 			return upd;
 		end;
 
-		method getData(varchar(500) inUrl, integer maxCells, varchar(8) SASLib) returns integer;
+		method getData(nvarchar(500) inUrl, integer maxCells, nvarchar(8) SASLib) returns integer;
 			declare integer  upd;
-			declare varchar(32) SASTabell tmpTable;
+			declare nvarchar(32) SASTabell tmpTable;
 			tmpTable=scan(scan(inUrl, -1, '/') || strip(put(time(),8.)), 1, '.');
 			SASTabell=scan(scan(inUrl, -1, '/'), 1, '.');
 			upd=getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
 			return upd;
 		end;
 
-		method getData(varchar(500) inUrl, varchar(8) SASLib, varchar(32) SASTabell) returns integer;
+		method getData(nvarchar(500) inUrl, nvarchar(8) SASLib, nvarchar(32) SASTabell) returns integer;
 			declare integer maxCells upd;
-			declare varchar(32) tmpTable;
+			declare nvarchar(32) tmpTable;
 			maxCells=defaultMaxCells;
 			tmpTable=scan(scan(inUrl, -1, '/') || strip(put(time(),8.)), 1, '.');
 			upd=getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
 			return upd;
 		end;
 
-		method getData(varchar(500) inUrl, integer maxCells, varchar(8) SASLib, varchar(32) SASTabell) returns integer;
+		method getData(nvarchar(500) inUrl, integer maxCells, nvarchar(8) SASLib, nvarchar(32) SASTabell) returns integer;
 			declare integer upd;
-			declare varchar(32) tmpTable;
+			declare nvarchar(32) tmpTable;
 			tmpTable=scan(scan(inUrl, -1, '/') || strip(put(time(),8.)), 1, '.');
 			upd=getDataStart(inUrl, SASLib, SASTabell, maxCells, tmpTable);
 			return upd;
@@ -72,13 +72,13 @@ proc ds2;
 
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 
-		method getDataStart(varchar(500) iUrl, varchar(8) SASLib, varchar(32) SASTabell, integer maxCells, varchar(32) tmpTable) returns integer;
+		method getDataStart(nvarchar(500) iUrl, nvarchar(8) SASLib, nvarchar(32) SASTabell, integer maxCells, nvarchar(32) tmpTable) returns integer;
 			declare package hash h_jsonFragor();
 			declare package hiter hi_jsonFragor(h_jsonFragor);
 			declare package sqlstmt s();
 			declare double tableUpdated dbUpdate;
-			declare varchar(41) fullTabellNamn;
-			declare varchar(250) fraga;
+			declare nvarchar(41) fullTabellNamn;
+			declare nvarchar(250) fraga;
 			declare integer ud rc i rcGet rcF;
 			declare integer starttid runTime loopStart min sek;
 
