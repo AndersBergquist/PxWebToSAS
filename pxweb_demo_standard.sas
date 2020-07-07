@@ -12,12 +12,12 @@ proc ds2;
 			url3='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101J/Flyttningar97';
 			url2='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101H/FoddaK';
 			url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/UF/UF0301/UF0301A/FoUSverigeRegion';
-			url0='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkningNy';
+			url0='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/AM/AM0207/AM0207E/AMPAK1';
 			urlKonj='http://prognos.konj.se/PXWeb/api/v1/sv/SenastePrognosen/f21_arbetsmarknad/F2101.px';
 
 			bibl='work';
 
-			px.getData(url1, bibl);
+			px.getData(url0, bibl);
 		end;
 	enddata;
 run;quit;

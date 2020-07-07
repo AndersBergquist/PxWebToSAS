@@ -1,7 +1,7 @@
 /****************************************
 Program: pxwebToSAS4
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.9
+Version: 4.0.11
 
 - output:
 	1. Lämnar returkod till 0 om uppdatering genomförts och 1 om den inte genomförts.
@@ -15,11 +15,13 @@ proc ds2;
 		declare package sqlstmt s_jsonGet;
 		declare nvarchar(10000) jsonFraga;
 		declare integer defaultMaxCells;
+		declare nvarchar(35) vstring;
 
 		forward getDataStart;
 
 		method pxwebtosas4();
 			defaultMaxCells=100000;
+			vstring='pxwebToSAS version 4.0.11';
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(nvarchar(500) inUrl) returns integer;
@@ -127,6 +129,7 @@ proc ds2;
 				sek=mod(runTime,60);
 				put 'Hämtningen tog' min 'minuter och ' sek 'sekunder, returkod:' ud;
 			end;
+			put vstring;
 			return ud;
 		end;
 	endpackage ;
