@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_getData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.9
+Version: 4.0.10
 Uppgift:
 - Hämtar SCB:s Json, tolkar den och lägger resultatet i en tabell.
 Innehåller:
@@ -45,11 +45,9 @@ proc ds2;
 				skapaOutputTabell.skapaOutputTabell(tmpTable, fullTabellNamn);
 			end;
 			respons=g.getData(iUrl, jsonFraga);
-*put 'substr1';
 			if substr(respons,1,38)='pxweb_GemensammaMetoder.getData(post):' then do; 
 				put respons;
 				returnCode=substr(respons,length(respons)-3);
-*put 'substr2';
 			end;
 			else if s_updateTmpTable_exist = 0 then do;
 				skapaStmtFraga.prepare_s(respons, tmpTable, sqlInsert, d, c);
@@ -112,7 +110,7 @@ proc ds2;
 								i=i+1;
 								sc=s_updateTmpTable.setvarchar(i, valueTexts);
 								i=i+1;
-								if dtype='t' and lowCase(kolTexts) in ('år', 'kvartal', 'månad') then do;
+								if dtype='t' and lowCase(kolTexts) in ('år', 'vartannat år', 'kvartal', 'månad') then do;
 									tid_dt=cretateTidsvariabler(values, kolTexts);
 									sc=s_updateTmpTable.setdouble(i, tid_dt);
 									i=i+1;
@@ -126,7 +124,7 @@ proc ds2;
 							if j.ISLEFTBRACKET(tokenType) then j.getNextToken(rc, token, tokenType, parseFlags);
 							do until(j.ISRIGHTBRACKET(tokenType)or rc^=0);
 								if notdigit(token)=1 then token=.;
-								s_updateTmpTable.setdouble(i, token);
+								sc=s_updateTmpTable.setdouble(i, token);
 								i=i+1;
 								c_index=c_index+1;
 								j.getNextToken(rc, token, tokenType, parseFlags);
@@ -150,7 +148,7 @@ proc ds2;
 		method cretateTidsvariabler(nvarchar(250) tid_cd, nvarchar(250) tid_nm) returns double;
 		declare double manad ar tid_dt;
 			ar=substr(tid_cd,1,4);
-			if lowCase(tid_nm) = 'år' then do;
+			if lowCase(tid_nm) in ('år', 'vartannat år')  then do;
 				manad=1;
 			end;
 			else if lowCase(tid_nm) = 'kvartal' then do;

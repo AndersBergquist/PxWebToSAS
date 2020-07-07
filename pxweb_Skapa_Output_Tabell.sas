@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_Skapa_Input_Tabell.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.9
+Version: 4.0.10
 Uppgift:
 - Skapar en tabell där indata från SCB lagras.
 Innehåller:
@@ -88,14 +88,17 @@ proc ds2;
 		end;*skapaTabell;
 
 		method identifieraTidsvariabler(nvarchar(250) tidTyp, nvarchar(250) code, nvarchar(250) text, integer len_Values, integer len_valueTexts, in_out nvarchar tidString);
-			if lowCase(tidTyp) in ('år', 'kvartal', 'månad') then do;
-					if lowCase(tidTyp)='år' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format year4.';
-					if lowCase(tidTyp)='kvartal' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yyq6.';
-					if lowCase(tidTyp)='månad' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yymmd7.';				
+			if lowCase(tidTyp) in ('år', 'vartannat år', 'kvartal', 'månad') then do;
+					if lowCase(tidTyp) in ('år', 'vartannat år') then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format year4.';
+					else if lowCase(tidTyp)='kvartal' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yyq6.';
+					else if lowCase(tidTyp)='månad' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yymmd7.';				
 					tidString=tidString || ',' || strip(code) || '_cd varchar(' || len_Values || ') having label ''' || trim(text) || '''';
 					tidString=tidString || ',' || strip(code) || '_nm varchar(' || len_ValueTexts || ') having label ''' || trim(text) || '''';
 			end;
-**Returnerar en sträng med tidsvariabelns variationer. t.ex år ger tid_dt och tid_cd och tid_num, månad ger tid_dt och tid_cd o.s.v.;
+			else do;
+				tidString=strip(code) || '_cd varchar(' || len_Values || ') having label ''' || trim(text) || '''';
+				tidString=tidString || ',' || strip(code) || '_nm varchar(' || len_ValueTexts || ') having label ''' || trim(text) || '''';
+			end;
 		end;
 
 		method useExistingTable(nvarchar(32) tmpTable, nvarchar(40) fullTabellNamn);

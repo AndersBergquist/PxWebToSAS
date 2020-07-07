@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_skapaStmtFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.9
+Version: 4.0.10
 Uppgift:
 - Skapar en fråga som används av sqlstmt för att uppdatera output tabellen med hämtad data.
 Innehåller:
@@ -77,7 +77,7 @@ proc ds2;
 					sqlInsert=sqlInsert || code || '_cd' || ', ' ||code || '_nm';
 					sqlValues=sqlValues || '?, ?';
 					d=d+2;
-					if lowCase(text) in ('år', 'kvartal', 'månad') then do;
+					if lowCase(text) in ('år', 'vartannat år', 'kvartal', 'månad') then do;
 						sqlInsert=sqlInsert || ', ' || code || '_dt';
 						sqlValues=sqlValues || ', ?';
 						d=d+1;

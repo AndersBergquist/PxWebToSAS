@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_makeJsonFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.9
+Version: 4.0.10
 Uppgift:
 - Skapar json-fråga till datahämtning och lagrar frågorna i filen work.json_tmpTabell;
 ***********************************/
@@ -29,7 +29,6 @@ proc ds2;
 			skapaSubFraga();
 			skapaFragehash(tmpTable);
 			countRows(tmpTable);
-*			h_jsonFragor.output('work.json_' || tmpTable);
 		end;
 
 		method skapaFragehash(nvarchar(32) tmpTable);
@@ -50,7 +49,6 @@ proc ds2;
 			subCode=getMetaData.getLevelCode(deep);
         ** Läser in frågorna till vektor. Start **;
 			antalFragor=0;
-*h_subFragor.output('work.subfragor');
 			rc=h_subFragor.find([subCode],[subCode, subFraga]);
 			do while(rc=0);
 				antalFragor=antalFragor+1;
@@ -67,7 +65,6 @@ proc ds2;
 				end;
 				if deep = maxDeep then do;
 					jsonFraga='{"query": [' || local_qstring || ',  {"code":"ContentsCode", "selection":{"filter":"all", "values":["*"]}} ], "response": {"format": "json"}}';
-*					h_jsonFragor.add([jsonFraga],[jsonFraga]);
 					s_jsonFragor.execute();
 				end;
 				else do;
@@ -144,7 +141,6 @@ proc ds2;
 				getMetaData.dataStorlekNext(subCode,antal,cellerPerValue);
 			iDataStorlek=iDataStorlek+1;
 			end;
-*h_subFragor.output('work.subfraga');
 		end;*skapaSubFraga;
 * Ett antal metoder för att kunna hämta jsonfrågor från packetet;
 *** Hämtar första fråga;
