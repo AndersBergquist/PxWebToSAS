@@ -99,8 +99,6 @@ proc ds2;
 							subFraga=stubFraga || values || '"';
 							subFraga=subFraga || ']}}';
 							h_subFragor.add([subCode],[subCode, subFraga]);
-put iMetaData= sizeMetaData= subCode=;
-put subFraga=;
 						end;
 					iMetaData=iMetaData+1;
 					end;
