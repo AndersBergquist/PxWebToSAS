@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_makeJsonFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.10
+Version: 4.0.12
 Uppgift:
 - Skapar json-fråga till datahämtning och lagrar frågorna i filen work.json_tmpTabell;
 ***********************************/
@@ -92,13 +92,15 @@ proc ds2;
 				if cellerPerValue=1 then do;
 					sizeMetaData=getMetaData.metaDataNumItem();
 					getMetaData.metaDataFirst(title, code, text, values, valueTexts, elimination, "time");
-					do until(iMetaData>sizeMetaData);
+					do until(iMetaData=sizeMetaData);
 					getMetaData.metaDataNext(title, code, text, values, valueTexts, elimination, "time");
 						if subCode=code then do;
 							stubFraga='{"code":"' || subCode || '", "selection":{"filter":"item", "values":["';
 							subFraga=stubFraga || values || '"';
 							subFraga=subFraga || ']}}';
 							h_subFragor.add([subCode],[subCode, subFraga]);
+put iMetaData= sizeMetaData= subCode=;
+put subFraga=;
 						end;
 					iMetaData=iMetaData+1;
 					end;

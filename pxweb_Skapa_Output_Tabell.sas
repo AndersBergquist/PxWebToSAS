@@ -1,7 +1,7 @@
 /****************************************
 Program: pxweb_Skapa_Input_Tabell.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.10
+Version: 4.0.12
 Uppgift:
 - Skapar en tabell där indata från SCB lagras.
 Innehåller:
@@ -103,7 +103,7 @@ proc ds2;
 
 		method useExistingTable(nvarchar(32) tmpTable, nvarchar(40) fullTabellNamn);
 			declare varchar(250) sqlfraga;
-			sqlfraga='create table ' || tmpTable || ' as select * from ' || fullTabellNamn;
+			sqlfraga='create table ' || tmpTable || ' as select * from ' || fullTabellNamn || ' limit 0';
 			sqlExec(sqlfraga);
 		end;
 	endpackage;

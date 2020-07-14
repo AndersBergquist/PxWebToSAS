@@ -8,7 +8,7 @@ proc ds2;
 		declare integer upd;
 	
 		method run();
-			url4='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/AM/AM0401/AM0401A/NAKUBefolkning2M';
+			url4='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkManad';
 			url3='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101J/Flyttningar97';
 			url2='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101H/FoddaK';
 			url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/UF/UF0301/UF0301A/FoUSverigeRegion';
