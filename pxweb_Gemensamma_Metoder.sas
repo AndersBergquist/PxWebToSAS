@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Andeputrs Bergquist, anders@fambergquist.se
-Version: 4.0.9
+Version: 4.0.11
 Uppgift:
 - Samla metoder som används av flera packet.
 Innehåller:
@@ -16,9 +16,9 @@ proc ds2;
 	package &prgLib..pxweb_GemensammaMetoder / overwrite=yes;
 		declare package http pxwebContent();
 		declare nvarchar(8) lib;
-		declare nvarchar(32) tabell tid;
+		declare nvarchar(32) tabell tid maxTid;
 		declare nvarchar(15000000) respons;
-		declare integer antal;
+		declare integer antal ctid;
 
 		forward finnsTabellHelper;
 
@@ -97,27 +97,29 @@ proc ds2;
 			declare	package sqlstmt s();
 			declare package sqlstmt c();
 			declare nvarchar(95) sqlMax sqlCount;
-			declare integer tabellFinns rc sc qc;
+			declare integer tabellFinns rc sc qc xc;
 
 			tabellFinns=finnsTabell(scan(fullTabellNamn,1,'.'), scan(fullTabellNamn,2,'.'));
 			if tabellFinns=1 then do;
-				sqlCount='select count(tid_cd) as tid from ' || fullTabellNamn;
+				sqlCount='select count(tid_cd) as ctid from ' || fullTabellNamn;
 				sc=c.prepare(sqlCount);
 				qc=c.execute();
-				c.bindresults([tid]);
+				c.bindresults([ctid]);
 				rc=c.fetch();
-				if tid>0 then do;
+				c.delete();
+				if ctid>0 then do;
 					sqlMax='select max(tid_cd) as tid from ' || fullTabellNamn;
-					s.prepare(sqlMax);
-					s.execute();
-					s.bindresults([tid]);
+					sc=s.prepare(sqlMax);
+					qc=s.execute();
+					xc=s.bindresults([maxTid]);
 					rc=s.fetch();
 				end;
+				else maxTid='0';
 			end;
 			else do;
-				tid=0;
+				maxTid='0';
 			end;
-		return tid;
+		return maxTid;
 		end;*getDBDate;
 
 		method kollaVariabelNamn(in_out varchar code);
