@@ -28,6 +28,7 @@ proc ds2;
 			skapaSubFraga(tmpTable);
 			skapaFragehash(tmpTable);
 			countRows(tmpTable);
+			sqlexec('drop table work.sub_' || tmpTable);
 		end;
 
 		method skapaFragehash(nvarchar(32) tmpTable);

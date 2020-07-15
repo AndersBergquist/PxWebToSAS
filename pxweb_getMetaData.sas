@@ -26,14 +26,13 @@ proc ds2;
 		declare package hiter hi_contentSum(h_contentSum);
 		declare integer radNr antal antalCeller cellerPerValue antalVar;
 		declare nvarchar(250) title code text values valueTexts elimination "time" subCode oldCode;
-		declare nvarchar(25000) subFraga;
 
 		forward getJsonMeta parseJsonMeta printData skapaMetadataSamling skapaFrageStorlek;
 		method pxweb_getMetaData();
 		end;
 
 		method getData(nvarchar(500) iUrl, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
-			declare nvarchar(25000) respons;
+			declare nvarchar(50000) respons;
 			respons=g.getData(iUrl);
 			parseJsonMeta(respons, maxCells, fullTabellNamn);
 			skapaMetadataSamling();
@@ -250,7 +249,7 @@ proc ds2;
 
 ** Metoder för att hämta data från package, slut **;
 
-		method parseJsonMeta(nvarchar(25000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn);
+		method parseJsonMeta(nvarchar(50000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn);
 			declare package hash parsMeta();
 			declare package hiter hi_parsMeta(parsMeta);
 			declare package json j();
@@ -261,10 +260,10 @@ proc ds2;
 			senasteTid=g.getSenasteTid(fullTabellNamn);
 			antalCeller=1;
 
-			parsMeta.keys([radNr]);
-			parsMeta.data([title, code, text, values, valueTexts]);
-			parsMeta.ordered('A');
-			parsMeta.defineDone();
+*;			parsMeta.keys([radNr]);
+*;			parsMeta.data([title, code, text, values, valueTexts]);
+*;			parsMeta.ordered('A');
+*;			parsMeta.defineDone();
 
 			h_metaData.keys([code, values]);
 			h_metaData.data([title, code, text, values, valueTexts, elimination, "time"]);
@@ -309,7 +308,7 @@ proc ds2;
 									else do;
 										radNr=radNr+1;
 										values=token;
-										parsMeta.ref([radNr],[title, code, text, values, valueTexts]);
+*;										parsMeta.ref([radNr],[title, code, text, values, valueTexts]);
 									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
 								end;
@@ -322,15 +321,16 @@ proc ds2;
 									end;
 									else do;
 										radNr=radNr+1;
-										parsMeta.find([radNr],[title, code, text, values, valueTexts]);
+*;										parsMeta.find([radNr],[title, code, text, values, valueTexts]);
 										valueTexts=token;
-										parsMeta.replace([radNr],[title, code, text, values, valueTexts]);
+*;										parsMeta.replace([radNr],[title, code, text, values, valueTexts]);
 									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
 								end;
 							end;
 							j.getNextToken(rc,token,tokenType,parseFlags);
 						end;
+parsMeta.output('work.parsMeta');
 						hi_parsmeta.first([title, code, text, values, valueTexts]);
 						do until(hi_parsmeta.next([title, code, text, values, valueTexts]));
 							if("time"='true' and (senasteTid<values)) then do;* and (senasteTid='' or senasteTid > values)) then do;
