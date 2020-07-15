@@ -10,8 +10,6 @@ proc ds2;
 		declare package &prgLib..pxweb_GemensammaMetoder g();
 		declare package &prgLib..pxweb_getMetaData getMetaData();
 		declare package hash h_subFragor();
-		declare package hash h_jsonFragor();
-		declare package hiter hi_jsonFragor(h_jsonFragor);
 		declare package sqlstmt s_jsonFragor;
 		declare package sqlstmt s_countJsonFragor;
 		declare nvarchar(250) subCode;
