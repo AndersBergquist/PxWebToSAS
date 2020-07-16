@@ -24,7 +24,7 @@ proc ds2;
 		declare package hiter hi_dimensionerSum(h_dimensionerSum);
 		declare package hash h_contentSum();
 		declare package hiter hi_contentSum(h_contentSum);
-		declare integer radNr antal antalCeller cellerPerValue antalVar;
+		declare integer radNr antal antalCeller cellerPerValue antalVar numItem;
 		declare nvarchar(250) title code text values valueTexts elimination "time" subCode oldCode;
 
 		forward getJsonMeta parseJsonMeta printData skapaMetadataSamling skapaFrageStorlek;
@@ -50,12 +50,26 @@ proc ds2;
 
 		method getAntalCeller() returns integer;
 			declare integer m_antalCeller;
-			antalCeller=1;
-			hi_dataStorlek.first([code,radNr, antalCeller]);
-			do until(hi_dataStorlek.next([code,radNr, antalCeller]));
-				m_antalCeller=m_antalCeller*radNr;
+			m_antalCeller=1;
+			hi_dimensionerSum.first([code, antalVar]);
+			do until(hi_dimensionerSum.next([code, antalVar]));
+				m_antalCeller=m_antalCeller*antalVar;
 			end;
-			return antalCeller;
+			hi_contentsum.first([code, antalVar]);
+			do until(hi_contentsum.next([code, antalVar]));
+				m_antalCeller=m_antalCeller*antalVar;
+			end;
+			return m_antalCeller;
+		end;
+
+		method getAntalCellerFraga() returns integer;
+			declare integer m_antalCeller;
+			m_antalCeller=1;
+			hi_dataStorlek.first([code, radNr,CellerPerValue]);
+			do until(hi_dataStorlek.next([code, radNr, CellerPerValue]));
+				m_antalCeller=m_antalCeller*CellerPerValue;
+			end;
+			return m_antalCeller;
 		end;
 
 		method getAntalFragor() returns integer;
@@ -142,14 +156,13 @@ proc ds2;
 			io_time="time";
 		end;
 		method metaDataNumItem() returns integer;
-			declare integer numItem;
-				numItem=h_metaData.num_items;
 			return numItem;
 		end;
 ** metaData, start;
 
 *** Metoder för att hämta data ur hashtabellerna. slut;
 		method skapaMetadataSamling(nvarchar(32) tmpTable);
+		declare integer rc qc;
 
 			h_dimensionerSum.keys([code]);
 			h_dimensionerSum.data([code, antalVar]);
@@ -162,32 +175,7 @@ proc ds2;
 			h_contentSum.ordered('A');
 			h_contentSum.dataset('{select code, count(valueTexts) as antalVar from meta_' || tmpTable || ' where code = ''ContentsCode'' group by code}');
 			h_contentSum.DefineDone();
-
-*			hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
-/*			antalVar=0;
-			oldCode=code;
-			do until(hi_metaData.next([title, code, text, values, valueTexts, elimination, "time"]));
-				if oldCode=code then do;
-					antalVar=antalVar+1;
-				end;
-				else do;
-					if oldCode ^= 'ContentsCode' then do;
-						h_dimensionerSum.ref([oldCode],[oldCode, antalVar]);
-					end;
-					else do;
-						h_contentSum.ref([oldCode],[oldCode, antalVar]);
-					end;
-					antalVar=1;
-					oldCode=code;
-				end;
-			end;
-			if oldCode ^= 'ContentsCode' then do;
-				h_dimensionerSum.ref([oldCode],[oldCode, antalVar]);
-			end;
-			else do;
-				h_contentSum.ref([oldCode],[oldCode, antalVar]);
-			end;
-*/		end;
+		end;
 
 		method skapaFrageStorlek( integer maxCells);
 			declare integer rc antalDimCeller antalDimCeller_old divisor tmpCeller;
@@ -195,7 +183,6 @@ proc ds2;
 			h_dataStorlek.data([code,radNr,cellerPerValue]);
 			h_dataStorlek.ordered('A');
 			h_dataStorlek.defineDone();
-
 			radNr=0;
 			rc=hi_contentSum.first([code, antalVar]);
 			antalDimCeller=round((maxCells/antalVar)-0.5);
@@ -240,10 +227,11 @@ proc ds2;
 			declare package sqlstmt s_parseInsert();
 			declare package sqlstmt s_parseUpdate();
 			declare package sqlstmt s_parseSetTime();
+			declare package sqlstmt s_numItem();
 			declare package json j();
 			declare nvarchar(250) token;
 			declare nvarchar(25) senasteTid;
-			declare integer rc tokenType parseFlags tmpCeller divisor;
+			declare integer rc tokenType parseFlags tmpCeller divisor rc qc;
 *Senaste tid är där laghämtningen ska styras ifrån. Bra att redan nu hämtas bara senate data.;
 			senasteTid=g.getSenasteTid(fullTabellNamn);
 			antalCeller=1;
@@ -320,6 +308,12 @@ proc ds2;
 				end;
 				j.getNextToken(rc,token,tokenType,parseFlags);
 			end;
+			s_numItem = _new_ sqlstmt('select count(valueTexts) as numItem from parse_' || tmpTable);
+			s_numItem.execute();
+			s_numItem.bindresults([numItem]);
+			s_numItem.fetch();
+			s_numItem.delete();
+
 		end;*parseJsonMeta;
 
 

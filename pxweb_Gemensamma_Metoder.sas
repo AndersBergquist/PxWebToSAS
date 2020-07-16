@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Andeputrs Bergquist, anders@fambergquist.se
-Version: 4.0.11
+Version: 4.0.12
 Uppgift:
 - Samla metoder som används av flera packet.
 Innehåller:
@@ -26,7 +26,7 @@ proc ds2;
 
 		end;
 
-		method getData(nvarchar(500) iUrl) returns nvarchar(100000);*Hämtar metadata fr�n SCB;
+		method getData(nvarchar(500) iUrl) returns nvarchar(100000);*Hämtar metadata från SCB;
 		declare integer sc rc;
 		declare nvarchar(500) catalogURL x;
 
@@ -44,6 +44,7 @@ proc ds2;
 
 		method getData(nvarchar(500) iUrl, nvarchar(100000) jsonFraga) returns nvarchar(15000000);
 			declare integer sc rc;
+			declare char(10) resp;
 			pxwebContent.createPostMethod(iUrl);
 			pxwebContent.setRequestContentType('application/json; charset=utf-8');
 			pxwebContent.setRequestBodyAsString(jsonFraga);
@@ -51,11 +52,14 @@ proc ds2;
 			sc=pxwebContent.getStatusCode();
 			if substr(sc,1,1) not in ('4' '5') then do;
 				pxwebContent.getResponseBodyAsString(respons, rc);
+				if substr(respons,length(respons)-7)^='"SCB"}]}' then put respons;
 				if rc=1 then do;
 					respons='pxweb_GemensammaMetoder.getData(post): Något gick fel för att responssträngen kunde inte hittas. Error: 111';
 				end;
 			end;
 			else do;
+				pxwebContent.getResponseBodyAsString(respons, rc);
+				put respons;
 				respons='pxweb_GemensammaMetoder.getData(post): HTTP Error nr: ' || sc;
 			end;
 		return respons;

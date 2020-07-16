@@ -21,7 +21,7 @@ proc ds2;
 
 		method pxwebtosas4();
 			defaultMaxCells=100000;
-			vstring='pxwebToSAS version 4.0.12B';
+			vstring='pxwebToSAS version 4.0.12B2';
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(nvarchar(500) inUrl) returns integer;
@@ -82,7 +82,8 @@ proc ds2;
 			declare nvarchar(41) fullTabellNamn;
 			declare nvarchar(250) fraga;
 			declare integer ud rc i rcGet rcF;
-			declare integer starttid runTime loopStart min sek;
+			declare integer starttid runTime loopStart min sek antalCeller;
+			declare float cellerSek;
 
 			starttid=time();
 
@@ -90,7 +91,7 @@ proc ds2;
 			tableUpdated=SCB_Date.getSCBDate(iUrl);
 			dbUpdate=SCB_Date.getDBDate(fullTabellNamn);
 			if dbUpdate < tableUpdated then do;
-				SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn, tmpTable);
+				antalCeller=SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn, tmpTable);
 				s_jsonGet = _new_ sqlstmt('select jsonFraga from work.json_' || tmpTable);
 				s_jsonGet.execute();
 				rc=101;
@@ -111,24 +112,25 @@ proc ds2;
 				if g.finnsTabell(fullTabellNamn)^=0 then sqlexec('INSERT INTO ' || fullTabellNamn || ' SELECT * FROM work.' || tmpTable  || ' EXCEPT SELECT * FROM ' || fullTabellNamn);
 				else sqlexec('SELECT * INTO ' || fullTabellNamn || ' FROM work.' || tmpTable || '');
 
-/*				if g.finnsTabell('work.' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.' || tmpTable);
+				if g.finnsTabell('work.' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.' || tmpTable);
 
-				+if g.finnsTabell('work.meta_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
+				if g.finnsTabell('work.meta_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
 				if g.finnsTabell('work.json_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.json_' || tmpTable || ';');
-*/				ud=rc;
+				ud=rc;
 			end;
 			else do;
 				put 'pxWebToSAS.getDataStart: Det finns ingen uppdatering till' fullTabellNamn;
 				ud=1;
 			end;
 			runtime=time()-starttid;
+			cellerSek=divide(antalCeller,runtime);
 			if runtime < 60 then do;
-				put 'Hämtningen tog' runTime 'sekunder, returkod:' ud;
+				put antalCeller nlnum24.-l ' celler hämtades på' runTime 'sekunder vilket motsvarar ' cellerSek nlnum27.2-l ' celler per sekund. Returkod:' ud;
 			end;
 			else do;
 				min=int(runTime/60);
 				sek=mod(runTime,60);
-				put 'Hämtningen tog' min 'minuter och ' sek 'sekunder, returkod:' ud;
+				put AntalCeller nlnum24.-l ' celler hämtades på' min 'minuter och ' sek 'sekunder vilket motsvarar ' cellerSek nlnum27.2-l ' celler per sekund. Returkod:' ud;
 			end;
 			put vstring;
 			return ud;
