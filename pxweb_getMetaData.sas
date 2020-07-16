@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_getMetaData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.9
+Version: 4.0.12
 Uppgift:
 - Hämtar metadata från SCB/PX-Web.
 Följande externa metoder finns;
@@ -34,27 +34,12 @@ proc ds2;
 		method getData(nvarchar(500) iUrl, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
 			declare nvarchar(50000) respons;
 			respons=g.getData(iUrl);
-			parseJsonMeta(respons, maxCells, fullTabellNamn);
+			parseJsonMeta(respons, maxCells, fullTabellNamn, tmpTable);
 			skapaMetadataSamling();
 			skapaFrageStorlek(maxCells);
-			h_metaData.output('work.meta_' || tmpTable);
+			sqlexec('create table work.meta_' || tmpTable || ' as select title, code, text, "values", valueTexts, elimination, "time" from work.parse_' || tmpTable );
+			sqlexec('drop table work.parse_' || tmpTable);
 		end;*skapaFraga;
-
-** Skriver ut metadatatabellen, start **;
-		method printMetaData(nvarchar(40) libTable);
-			printData(libTable);
-		end;
-
-		method printMetaData(nvarchar(8) lib, nvarchar(32) tabell);
-			declare nvarchar(40) libTable;
-			libTable=lib || '.' || tabell;
-			printData(libTable);
-		end;
-
-		method printData(nvarchar(40) libTable);
-			h_metaData.output(libTable);
-		end;
-** Skriver ut metadatatabellen, slut **;
 
 ** Metoder för att hämta data från package, start **;
 		method getAntalCodes() returns integer;
@@ -249,9 +234,12 @@ proc ds2;
 
 ** Metoder för att hämta data från package, slut **;
 
-		method parseJsonMeta(nvarchar(50000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn);
+		method parseJsonMeta(nvarchar(50000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
 			declare package hash parsMeta();
 			declare package hiter hi_parsMeta(parsMeta);
+			declare package sqlstmt s_parseInsert();
+			declare package sqlstmt s_parseUpdate();
+			declare package sqlstmt s_parseSetTime();
 			declare package json j();
 			declare nvarchar(250) token;
 			declare nvarchar(25) senasteTid;
@@ -264,6 +252,7 @@ proc ds2;
 *;			parsMeta.data([title, code, text, values, valueTexts]);
 *;			parsMeta.ordered('A');
 *;			parsMeta.defineDone();
+			sqlexec('create table work.parse_' || tmpTable || ' (radNr integer, title nvarchar(250), code nvarchar(250), text nvarchar(250), "values" nvarchar(250), valueTexts nvarchar(250), elimination nvarchar(250), "time" nvarchar(250))');
 
 			h_metaData.keys([code, values]);
 			h_metaData.data([title, code, text, values, valueTexts, elimination, "time"]);
@@ -300,6 +289,7 @@ proc ds2;
 								"time"=token;
 							end;
 							else if token='values' then do;
+								s_parseInsert = _new_ sqlstmt('insert into work.parse_' || tmpTable || ' (radNr, title, code, text, "values", valueTexts) values(?, ?, ?, ?, ?, ?)',[radNr, title, code, text, values, valueTexts]);
 								radNr=0;
 								j.getNextToken(rc,token,tokenType,parseFlags);
 								do until(j.isrightbracket(tokenType));
@@ -309,36 +299,50 @@ proc ds2;
 										radNr=radNr+1;
 										values=token;
 *;										parsMeta.ref([radNr],[title, code, text, values, valueTexts]);
+										s_parseInsert.execute();
 									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
 								end;
+								s_parseInsert.delete();
 							end;
 							else if token='valueTexts' then do;
 								radNr=0;
+								s_parseUpdate = _new_ sqlstmt('update work.parse_' || tmpTable || ' set radNr=0, valueTexts=? where (radNr=?)',[valueTexts, radNr]);
 								j.getNextToken(rc,token,tokenType,parseFlags);
 								do until(j.isrightbracket(tokenType));
 									if j.isleftbracket(tokenType) then do;
 									end;
 									else do;
 										radNr=radNr+1;
+										
 *;										parsMeta.find([radNr],[title, code, text, values, valueTexts]);
 										valueTexts=token;
-*;										parsMeta.replace([radNr],[title, code, text, values, valueTexts]);
+
+*;										s_parseUpdate.execute();
+										parsMeta.replace([radNr],[title, code, text, values, valueTexts]);
+
 									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
 								end;
+								s_parseUpdate.delete();
 							end;
 							j.getNextToken(rc,token,tokenType,parseFlags);
 						end;
-parsMeta.output('work.parsMeta');
+						s_parseSetTime = _new_ sqlstmt('update work.parse_' || tmpTable || ' set elimination=?, "time"=? where (code=?)',[elimination, "time", code]);
+						s_parseSetTime.execute();
+						s_parseSetTime.delete();
+
+*parsMeta.output('work.parsMeta');
 						hi_parsmeta.first([title, code, text, values, valueTexts]);
 						do until(hi_parsmeta.next([title, code, text, values, valueTexts]));
-							if("time"='true' and (senasteTid<values)) then do;* and (senasteTid='' or senasteTid > values)) then do;
-								h_metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
-							end;
-							else if "time" ^= 'true' then do;
-								h_metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
-							end;
+*							if("time"='true' and (senasteTid<values)) then do;* and (senasteTid='' or senasteTid > values)) then do;
+*								h_metaData.ref([code, values],[title, code, text, values, valueTexts, elimination, "time"]);
+*put 'Time=true' title= code= text= values= valueTexts= elimination= "time"=;
+*							end;
+*							else if "time" ^= 'true' then do;
+								h_metaData.ref([code, values],[title, code, text, values, valueTexts, elimination, "time"]);
+*put 'Time^=true' title= code= text= values= valueTexts= elimination= "time"=;
+*							end;
 						end;
 						parsmeta.clear();
 						j.getNextToken(rc,token,tokenType,parseFlags);
