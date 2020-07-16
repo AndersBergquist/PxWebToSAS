@@ -35,10 +35,10 @@ proc ds2;
 			declare nvarchar(50000) respons;
 			respons=g.getData(iUrl);
 			parseJsonMeta(respons, maxCells, fullTabellNamn, tmpTable);
-			skapaMetadataSamling();
-			skapaFrageStorlek(maxCells);
 			sqlexec('create table work.meta_' || tmpTable || ' as select title, code, text, "values", valueTexts, elimination, "time" from work.parse_' || tmpTable );
 			sqlexec('drop table work.parse_' || tmpTable);
+			skapaMetadataSamling(tmpTable);
+			skapaFrageStorlek(maxCells);
 		end;*skapaFraga;
 
 ** Metoder för att hämta data från package, start **;
@@ -149,20 +149,22 @@ proc ds2;
 ** metaData, start;
 
 *** Metoder för att hämta data ur hashtabellerna. slut;
-		method skapaMetadataSamling();
+		method skapaMetadataSamling(nvarchar(32) tmpTable);
 
 			h_dimensionerSum.keys([code]);
 			h_dimensionerSum.data([code, antalVar]);
 			h_dimensionerSum.ordered('A');
+			h_dimensionerSum.dataset('{select code, count(valueTexts) as antalVar from meta_' || tmpTable || ' where code ^= ''ContentsCode'' group by code}');
 			h_dimensionerSum.DefineDone();
 
 			h_contentSum.keys([code]);
 			h_contentSum.data([code, antalVar]);
 			h_contentSum.ordered('A');
+			h_contentSum.dataset('{select code, count(valueTexts) as antalVar from meta_' || tmpTable || ' where code = ''ContentsCode'' group by code}');
 			h_contentSum.DefineDone();
 
-			hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
-			antalVar=0;
+*			hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
+/*			antalVar=0;
 			oldCode=code;
 			do until(hi_metaData.next([title, code, text, values, valueTexts, elimination, "time"]));
 				if oldCode=code then do;
@@ -185,7 +187,7 @@ proc ds2;
 			else do;
 				h_contentSum.ref([oldCode],[oldCode, antalVar]);
 			end;
-		end;
+*/		end;
 
 		method skapaFrageStorlek( integer maxCells);
 			declare integer rc antalDimCeller antalDimCeller_old divisor tmpCeller;
@@ -235,8 +237,6 @@ proc ds2;
 ** Metoder för att hämta data från package, slut **;
 
 		method parseJsonMeta(nvarchar(50000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
-			declare package hash parsMeta();
-			declare package hiter hi_parsMeta(parsMeta);
 			declare package sqlstmt s_parseInsert();
 			declare package sqlstmt s_parseUpdate();
 			declare package sqlstmt s_parseSetTime();
@@ -247,18 +247,7 @@ proc ds2;
 *Senaste tid är där laghämtningen ska styras ifrån. Bra att redan nu hämtas bara senate data.;
 			senasteTid=g.getSenasteTid(fullTabellNamn);
 			antalCeller=1;
-
-*;			parsMeta.keys([radNr]);
-*;			parsMeta.data([title, code, text, values, valueTexts]);
-*;			parsMeta.ordered('A');
-*;			parsMeta.defineDone();
 			sqlexec('create table work.parse_' || tmpTable || ' (radNr integer, title nvarchar(250), code nvarchar(250), text nvarchar(250), "values" nvarchar(250), valueTexts nvarchar(250), elimination nvarchar(250), "time" nvarchar(250))');
-
-			h_metaData.keys([code, values]);
-			h_metaData.data([title, code, text, values, valueTexts, elimination, "time"]);
-			h_metaData.ordered('A');
-			h_metaData.defineDone();
-
 			rc=j.createparser(iRespons);
 			j.getNextToken(rc,token,tokenType,parseFlags);
 			do while(rc=0);
@@ -298,7 +287,6 @@ proc ds2;
 									else do;
 										radNr=radNr+1;
 										values=token;
-*;										parsMeta.ref([radNr],[title, code, text, values, valueTexts]);
 										s_parseInsert.execute();
 									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
@@ -314,13 +302,8 @@ proc ds2;
 									end;
 									else do;
 										radNr=radNr+1;
-										
-*;										parsMeta.find([radNr],[title, code, text, values, valueTexts]);
 										valueTexts=token;
-
-*;										s_parseUpdate.execute();
-										parsMeta.replace([radNr],[title, code, text, values, valueTexts]);
-
+										s_parseUpdate.execute();
 									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
 								end;
@@ -332,19 +315,6 @@ proc ds2;
 						s_parseSetTime.execute();
 						s_parseSetTime.delete();
 
-*parsMeta.output('work.parsMeta');
-						hi_parsmeta.first([title, code, text, values, valueTexts]);
-						do until(hi_parsmeta.next([title, code, text, values, valueTexts]));
-*							if("time"='true' and (senasteTid<values)) then do;* and (senasteTid='' or senasteTid > values)) then do;
-*								h_metaData.ref([code, values],[title, code, text, values, valueTexts, elimination, "time"]);
-*put 'Time=true' title= code= text= values= valueTexts= elimination= "time"=;
-*							end;
-*							else if "time" ^= 'true' then do;
-								h_metaData.ref([code, values],[title, code, text, values, valueTexts, elimination, "time"]);
-*put 'Time^=true' title= code= text= values= valueTexts= elimination= "time"=;
-*							end;
-						end;
-						parsmeta.clear();
 						j.getNextToken(rc,token,tokenType,parseFlags);
 					end;
 				end;
