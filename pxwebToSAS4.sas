@@ -21,7 +21,7 @@ proc ds2;
 
 		method pxwebtosas4();
 			defaultMaxCells=100000;
-			vstring='pxwebToSAS version 4.0.12B2';
+			vstring='pxwebToSAS version 4.0.12B1a';
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(nvarchar(500) inUrl) returns integer;
@@ -113,10 +113,9 @@ proc ds2;
 				else sqlexec('SELECT * INTO ' || fullTabellNamn || ' FROM work.' || tmpTable || '');
 
 				if g.finnsTabell('work.' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.' || tmpTable);
-
-				if g.finnsTabell('work.meta_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
+/*				if g.finnsTabell('work.meta_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
 				if g.finnsTabell('work.json_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.json_' || tmpTable || ';');
-				ud=rc;
+*/				ud=rc;
 			end;
 			else do;
 				put 'pxWebToSAS.getDataStart: Det finns ingen uppdatering till' fullTabellNamn;
