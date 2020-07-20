@@ -26,7 +26,7 @@ proc ds2;
 
 		end;
 
-		method getData(nvarchar(500) iUrl) returns nvarchar(100000);*Hämtar metadata från SCB;
+		method getData(nvarchar(500) iUrl) returns nvarchar(500000);*Hämtar metadata från SCB;
 		declare integer sc rc;
 		declare nvarchar(500) catalogURL x;
 

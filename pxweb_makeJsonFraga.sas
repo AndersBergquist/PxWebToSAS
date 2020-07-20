@@ -17,7 +17,7 @@ proc ds2;
 		declare nvarchar(250) subCode;
 			declare nvarchar(250) title code text values valueTexts elimination "time";
 		declare nvarchar(25000) subFraga;
-		declare nvarchar(10000) jsonFraga;
+		declare nvarchar(100000) jsonFraga;
 		declare integer numJsonFragor;
 		forward skapaSubFraga skapaFragehash skapaFrageHashHelper skapaFrageHashHelper2 countRows;
 

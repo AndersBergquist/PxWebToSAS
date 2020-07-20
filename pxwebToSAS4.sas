@@ -13,7 +13,7 @@ proc ds2;
 		declare package &prgLib..pxweb_getData SCB_getData();
 		declare package &prgLib..pxweb_gemensammametoder g();
 		declare package sqlstmt s_jsonGet;
-		declare nvarchar(10000) jsonFraga;
+		declare nvarchar(100000) jsonFraga;
 		declare integer defaultMaxCells;
 		declare nvarchar(35) vstring;
 
@@ -92,7 +92,7 @@ proc ds2;
 			dbUpdate=SCB_Date.getDBDate(fullTabellNamn);
 			if dbUpdate < tableUpdated then do;
 				antalCeller=SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn, tmpTable);
-				s_jsonGet = _new_ sqlstmt('select jsonFraga from work.json_' || tmpTable);
+				s_jsonGet = _new_ sqlstmt('select strip(jsonFraga) as jsonFraga from work.json_' || tmpTable);
 				s_jsonGet.execute();
 				rc=101;
  				do while (s_jsonGet.fetch()=0 and rc=101);
@@ -113,7 +113,6 @@ proc ds2;
 				else sqlexec('SELECT * INTO ' || fullTabellNamn || ' FROM work.' || tmpTable || '');
 
 				if g.finnsTabell('work.' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.' || tmpTable);
-
 				if g.finnsTabell('work.meta_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
 				if g.finnsTabell('work.json_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.json_' || tmpTable || ';');
 				ud=rc;

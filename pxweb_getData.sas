@@ -27,7 +27,7 @@ proc ds2;
 			c_exist=0;
 			s_updateTmpTable_exist=0;
 		end;
-		method hamtaData(nvarchar(500) iUrl, nvarchar(10000) jsonFraga, nvarchar(32) tmpTable, nvarchar(40) fullTabellNamn) returns integer;
+		method hamtaData(nvarchar(500) iUrl, nvarchar(100000) jsonFraga, nvarchar(32) tmpTable, nvarchar(40) fullTabellNamn) returns integer;
 			declare nvarchar(15000000) respons;
 			declare nvarchar(150) loadMetadata;
 			declare integer tmpTableFinns fullTabellFinns p i;

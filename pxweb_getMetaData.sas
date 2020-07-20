@@ -32,7 +32,7 @@ proc ds2;
 		end;
 
 		method getData(nvarchar(500) iUrl, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
-			declare nvarchar(50000) respons;
+			declare nvarchar(500000) respons;
 			respons=g.getData(iUrl);
 			parseJsonMeta(respons, maxCells, fullTabellNamn, tmpTable);
 			sqlexec('create table work.meta_' || tmpTable || ' as select title, code, text, "values", valueTexts, elimination, "time" from work.parse_' || tmpTable );
@@ -223,7 +223,7 @@ proc ds2;
 
 ** Metoder för att hämta data från package, slut **;
 
-		method parseJsonMeta(nvarchar(50000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
+		method parseJsonMeta(nvarchar(500000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
 			declare package sqlstmt s_parseInsert();
 			declare package sqlstmt s_parseUpdate();
 			declare package sqlstmt s_parseSetTime();
