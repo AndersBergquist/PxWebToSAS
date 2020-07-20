@@ -11,7 +11,7 @@ proc ds2;
 			url4='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101A/BefolkManad';
 			url3='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101J/Flyttningar97';
 			url2='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101H/FoddaK';
-			url1=url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/MI/MI0810/MI0810A/LandarealTatortN';;
+			url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/MI/MI0810/MI0810A/LandarealTatortN';
 			url0='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/AM/AM0207/AM0207E/AMPAK1';
 			urlKonj='http://prognos.konj.se/PXWeb/api/v1/sv/SenastePrognosen/f21_arbetsmarknad/F2101.px';
 
