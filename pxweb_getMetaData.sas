@@ -1,7 +1,7 @@
 ﻿/****************************************
 Program: pxweb_getMetaData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.9
+Version: 4.0.12
 Uppgift:
 - Hämtar metadata från SCB/PX-Web.
 Följande externa metoder finns;
@@ -24,44 +24,24 @@ proc ds2;
 		declare package hiter hi_dimensionerSum(h_dimensionerSum);
 		declare package hash h_contentSum();
 		declare package hiter hi_contentSum(h_contentSum);
-		declare integer radNr antal antalCeller cellerPerValue antalVar;
+		declare integer radNr antal antalCeller cellerPerValue antalVar numItem;
 		declare nvarchar(250) title code text values valueTexts elimination "time" subCode oldCode;
-		declare nvarchar(25000) subFraga;
 
 		forward getJsonMeta parseJsonMeta printData skapaMetadataSamling skapaFrageStorlek;
 		method pxweb_getMetaData();
 		end;
 
 		method getData(nvarchar(500) iUrl, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
-			declare nvarchar(25000) respons;
+			declare nvarchar(500000) respons;
 			respons=g.getData(iUrl);
-put 'getData klar';
-			parseJsonMeta(respons, maxCells, fullTabellNamn);
-put 'parseJsonMeta klar';
-			skapaMetadataSamling();
-put 'skapaMetadataSamling klar';
+			parseJsonMeta(respons, maxCells, fullTabellNamn, tmpTable);
+			sqlexec('create table work.meta_' || tmpTable || ' as select title, code, text, "values", valueTexts, elimination, "time" from work.parse_' || tmpTable );
+			sqlexec('drop table work.parse_' || tmpTable);
+			skapaMetadataSamling(tmpTable);
 			skapaFrageStorlek(maxCells);
-put 'skapaFrågestolek klar';
-			h_metaData.output('work.meta_' || tmpTable);
 		end;*skapaFraga;
 
-** Skriver ut metadatatabellen, start **;
-		method printMetaData(nvarchar(40) libTable);
-			printData(libTable);
-		end;
-
-		method printMetaData(nvarchar(8) lib, nvarchar(32) tabell);
-			declare nvarchar(40) libTable;
-			libTable=lib || '.' || tabell;
-			printData(libTable);
-		end;
-
-		method printData(nvarchar(40) libTable);
-			h_metaData.output(libTable);
-		end;
-** Skriver ut metadatatabellen, slut **;
-
-** Metoder f�r att h�mta data fr�n package, start **;
+** Metoder för att hämta data från package, start **;
 		method getAntalCodes() returns integer;
 			declare integer antalCodes;
 			antalCodes=h_datastorlek.num_items;
@@ -84,12 +64,12 @@ put 'skapaFrågestolek klar';
 
 		method getAntalCellerFraga() returns integer;
 			declare integer m_antalCeller;
-			antalCeller=1;
-			hi_dataStorlek.first([code,radNr, antalCeller]);
-			do until(hi_dataStorlek.next([code,radNr, antalCeller]));
-				m_antalCeller=m_antalCeller*radNr;
+			m_antalCeller=1;
+			hi_dataStorlek.first([code, radNr,CellerPerValue]);
+			do until(hi_dataStorlek.next([code, radNr, CellerPerValue]));
+				m_antalCeller=m_antalCeller*CellerPerValue;
 			end;
-			return antalCeller;
+			return m_antalCeller;
 		end;
 
 		method getAntalFragor() returns integer;
@@ -100,7 +80,7 @@ put 'skapaFrågestolek klar';
 			return antalFragor;
 		end;
 ** dataStorlek, start;
-	**************** VARF�R BEH�VS TV� EX AV DESSA************************************;
+	**************** VARFÖR BEHÖVS TVÅ EX AV DESSA************************************;
 		method dataStorlekFirst(in_out nvarchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
 			hi_dataStorlek.first([code, radNr,CellerPerValue]);
 			io_code=code;
@@ -152,7 +132,7 @@ put 'skapaFrågestolek klar';
 		end;
 ** datastorlek, slut;
 
-*** Metoder f�r att h�mta data ur hashtabellerna. start;
+*** Metoder för att hämta data ur hashtabellerna. start;
 ** metaData, start;
 		method metaDataFirst(in_out nvarchar io_title, in_out nvarchar io_code, in_out nvarchar io_text, in_out nvarchar io_values, in_out nvarchar io_valueTexts, in_out nvarchar io_elimination, in_out nvarchar io_time);
 			hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
@@ -176,49 +156,25 @@ put 'skapaFrågestolek klar';
 			io_time="time";
 		end;
 		method metaDataNumItem() returns integer;
-			declare integer numItem;
-				numItem=h_metaData.num_items;
 			return numItem;
 		end;
 ** metaData, start;
 
-*** Metoder f�r att h�mta data ur hashtabellerna. slut;
-		method skapaMetadataSamling();
+*** Metoder för att hämta data ur hashtabellerna. slut;
+		method skapaMetadataSamling(nvarchar(32) tmpTable);
+		declare integer rc qc;
 
 			h_dimensionerSum.keys([code]);
 			h_dimensionerSum.data([code, antalVar]);
 			h_dimensionerSum.ordered('A');
+			h_dimensionerSum.dataset('{select code, count(valueTexts) as antalVar from meta_' || tmpTable || ' where code ^= ''ContentsCode'' group by code}');
 			h_dimensionerSum.DefineDone();
 
 			h_contentSum.keys([code]);
 			h_contentSum.data([code, antalVar]);
 			h_contentSum.ordered('A');
+			h_contentSum.dataset('{select code, count(valueTexts) as antalVar from meta_' || tmpTable || ' where code = ''ContentsCode'' group by code}');
 			h_contentSum.DefineDone();
-
-			hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
-			antalVar=0;
-			oldCode=code;
-			do until(hi_metaData.next([title, code, text, values, valueTexts, elimination, "time"]));
-				if oldCode=code then do;
-					antalVar=antalVar+1;
-				end;
-				else do;
-					if oldCode ^= 'ContentsCode' then do;
-						h_dimensionerSum.ref([oldCode],[oldCode, antalVar]);
-					end;
-					else do;
-						h_contentSum.ref([oldCode],[oldCode, antalVar]);
-					end;
-					antalVar=1;
-					oldCode=code;
-				end;
-			end;
-			if oldCode ^= 'ContentsCode' then do;
-				h_dimensionerSum.ref([oldCode],[oldCode, antalVar]);
-			end;
-			else do;
-				h_contentSum.ref([oldCode],[oldCode, antalVar]);
-			end;
 		end;
 
 		method skapaFrageStorlek( integer maxCells);
@@ -227,7 +183,6 @@ put 'skapaFrågestolek klar';
 			h_dataStorlek.data([code,radNr,cellerPerValue]);
 			h_dataStorlek.ordered('A');
 			h_dataStorlek.defineDone();
-
 			radNr=0;
 			rc=hi_contentSum.first([code, antalVar]);
 			antalDimCeller=round((maxCells/antalVar)-0.5);
@@ -266,29 +221,21 @@ put 'skapaFrågestolek klar';
 
 
 
-** Metoder f�r att h�mta data fr�n package, slut **;
+** Metoder för att hämta data från package, slut **;
 
-		method parseJsonMeta(nvarchar(25000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn);
-			declare package hash parsMeta();
-			declare package hiter hi_parsMeta(parsMeta);
+		method parseJsonMeta(nvarchar(500000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
+			declare package sqlstmt s_parseInsert();
+			declare package sqlstmt s_parseUpdate();
+			declare package sqlstmt s_parseSetTime();
+			declare package sqlstmt s_numItem();
 			declare package json j();
 			declare nvarchar(250) token;
 			declare nvarchar(25) senasteTid;
-			declare integer rc tokenType parseFlags tmpCeller divisor;
-*Senaste tid �r d�r lagh�mtningen ska styras ifr�n. Bra att redan nu h�mtas bara senate data.;
+			declare integer rc tokenType parseFlags tmpCeller divisor rc qc;
+*Senaste tid är där laghämtningen ska styras ifrån. Bra att redan nu hämtas bara senate data.;
 			senasteTid=g.getSenasteTid(fullTabellNamn);
 			antalCeller=1;
-
-			parsMeta.keys([radNr]);
-			parsMeta.data([title, code, text, values, valueTexts]);
-			parsMeta.ordered('A');
-			parsMeta.defineDone();
-
-			h_metaData.keys([code, values]);
-			h_metaData.data([title, code, text, values, valueTexts, elimination, "time"]);
-			h_metaData.ordered('A');
-			h_metaData.defineDone();
-
+			sqlexec('create table work.parse_' || tmpTable || ' (radNr integer, title nvarchar(250), code nvarchar(250), text nvarchar(250), "values" nvarchar(250), valueTexts nvarchar(250), elimination nvarchar(250), "time" nvarchar(250))');
 			rc=j.createparser(iRespons);
 			j.getNextToken(rc,token,tokenType,parseFlags);
 			do while(rc=0);
@@ -319,6 +266,7 @@ put 'skapaFrågestolek klar';
 								"time"=token;
 							end;
 							else if token='values' then do;
+								s_parseInsert = _new_ sqlstmt('insert into work.parse_' || tmpTable || ' (radNr, title, code, text, "values", valueTexts) values(?, ?, ?, ?, ?, ?)',[radNr, title, code, text, values, valueTexts]);
 								radNr=0;
 								j.getNextToken(rc,token,tokenType,parseFlags);
 								do until(j.isrightbracket(tokenType));
@@ -327,43 +275,45 @@ put 'skapaFrågestolek klar';
 									else do;
 										radNr=radNr+1;
 										values=token;
-										parsMeta.ref([radNr],[title, code, text, values, valueTexts]);
+										s_parseInsert.execute();
 									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
 								end;
+								s_parseInsert.delete();
 							end;
 							else if token='valueTexts' then do;
 								radNr=0;
+								s_parseUpdate = _new_ sqlstmt('update work.parse_' || tmpTable || ' set radNr=0, valueTexts=? where (radNr=?)',[valueTexts, radNr]);
 								j.getNextToken(rc,token,tokenType,parseFlags);
 								do until(j.isrightbracket(tokenType));
 									if j.isleftbracket(tokenType) then do;
 									end;
 									else do;
 										radNr=radNr+1;
-										parsMeta.find([radNr],[title, code, text, values, valueTexts]);
 										valueTexts=token;
-										parsMeta.replace([radNr],[title, code, text, values, valueTexts]);
+										s_parseUpdate.execute();
 									end;
 									j.getNextToken(rc,token,tokenType,parseFlags);
 								end;
+								s_parseUpdate.delete();
 							end;
 							j.getNextToken(rc,token,tokenType,parseFlags);
 						end;
-						hi_parsmeta.first([title, code, text, values, valueTexts]);
-						do until(hi_parsmeta.next([title, code, text, values, valueTexts]));
-							if("time"='true' and (senasteTid<values)) then do;* and (senasteTid='' or senasteTid > values)) then do;
-								h_metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
-							end;
-							else if "time" ^= 'true' then do;
-								h_metaData.ref([code, values],[title, code, text, values, valueTexts,elimination, "time"]);
-							end;
-						end;
-						parsmeta.clear();
+						s_parseSetTime = _new_ sqlstmt('update work.parse_' || tmpTable || ' set elimination=?, "time"=? where (code=?)',[elimination, "time", code]);
+						s_parseSetTime.execute();
+						s_parseSetTime.delete();
+
 						j.getNextToken(rc,token,tokenType,parseFlags);
 					end;
 				end;
 				j.getNextToken(rc,token,tokenType,parseFlags);
 			end;
+			s_numItem = _new_ sqlstmt('select count(valueTexts) as numItem from parse_' || tmpTable);
+			s_numItem.execute();
+			s_numItem.bindresults([numItem]);
+			s_numItem.fetch();
+			s_numItem.delete();
+
 		end;*parseJsonMeta;
 
 

@@ -1,14 +1,14 @@
 ﻿/****************************************
 Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Andeputrs Bergquist, anders@fambergquist.se
-Version: 4.0.11
+Version: 4.0.12
 Uppgift:
-- Samla metoder som anv�nds av flera packet.
-Inneh�ller:
-- getData; getData(iURL), h�mtar en responsfil fr�n pxWeb med hj�lp av Get.
+- Samla metoder som används av flera packet.
+Innehåller:
+- getData; getData(iURL), hämtar en responsfil från pxWeb med hjälp av Get.
 - finnsTabell, finnsTabell(iLib, iTabell), returnerar 0 om tabell ej finns och 1 om tabell finns.
-- getSenasteTid, getSenasteTid(fulltTabellnamn), returnerar senaste tiden f�r data i tabellen. 0 om tabellen inte finns.
-- kollaVariabelNamn, kollaVariabelNamn(in_out varchar code), l�gger till _ om f�rsta tecknet i columnnmanet �r ett tal.;
+- getSenasteTid, getSenasteTid(fulltTabellnamn), returnerar senaste tiden för data i tabellen. 0 om tabellen inte finns.
+- kollaVariabelNamn, kollaVariabelNamn(in_out varchar code), lägger till _ om första tecknet i columnnmanet är ett tal.;
 ***********************************/
 
 
@@ -26,8 +26,8 @@ proc ds2;
 
 		end;
 
-		method getData(nvarchar(500) iUrl) returns nvarchar(100000);*H�mtar metadata frn SCB;
-		declare integer sc rc lenRespons;
+		method getData(nvarchar(500) iUrl) returns nvarchar(500000);*Hämtar metadata från SCB;
+		declare integer sc rc;
 		declare nvarchar(500) catalogURL x;
 
 			pxwebContent.createGetMethod(iUrl);
@@ -35,10 +35,6 @@ proc ds2;
 			sc=pxwebContent.getStatusCode();
 	  	    if substr(sc,1,1) not in ('4', '5') then do;
 	           	pxwebContent.getResponseBodyAsString(respons, rc);
-				if substr(respons,1,7)^='[{"id":' then do;
-					lenRespons=length(respons);
-					put 'Metadatafilen innehåller ' lenRespons nlnum24.-l ' tecken';
-				end;
 	 		end;
 		   else do;
 		   		respons='Error';
@@ -48,6 +44,7 @@ proc ds2;
 
 		method getData(nvarchar(500) iUrl, nvarchar(100000) jsonFraga) returns nvarchar(15000000);
 			declare integer sc rc;
+			declare char(10) resp;
 			pxwebContent.createPostMethod(iUrl);
 			pxwebContent.setRequestContentType('application/json; charset=utf-8');
 			pxwebContent.setRequestBodyAsString(jsonFraga);
@@ -55,11 +52,14 @@ proc ds2;
 			sc=pxwebContent.getStatusCode();
 			if substr(sc,1,1) not in ('4' '5') then do;
 				pxwebContent.getResponseBodyAsString(respons, rc);
+				if substr(respons,length(respons)-7)^='"SCB"}]}' then put respons;
 				if rc=1 then do;
-					respons='pxweb_GemensammaMetoder.getData(post): N�got gick fel f�r att responsstr�ngen kunde inte hittas. Error: 111';
+					respons='pxweb_GemensammaMetoder.getData(post): Något gick fel för att responssträngen kunde inte hittas. Error: 111';
 				end;
 			end;
 			else do;
+				pxwebContent.getResponseBodyAsString(respons, rc);
+				put respons;
 				respons='pxweb_GemensammaMetoder.getData(post): HTTP Error nr: ' || sc;
 			end;
 		return respons;

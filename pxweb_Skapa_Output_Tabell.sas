@@ -62,7 +62,7 @@ proc ds2;
 			end;
 			else do;
 					identifieraTidsvariabler(text, code, text, len_Values, len_ValueTexts,txtStr);
-					sqlfraga=sqlfraga || txtStr;
+					sqlfraga=sqlfraga || ',' || txtStr;
 			end;
 			hi_metadata.next([title code text "time" elimination len_values len_valueTexts]);
 			do until(hi_metadata.next([title code text "time" elimination len_values len_valueTexts]));
