@@ -13,11 +13,11 @@ proc ds2;
 			url2='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/BE/BE0101/BE0101H/FoddaK';
 			url1='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/MI/MI0810/MI0810A/LandarealTatortN';
 			url0='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/AM/AM0207/AM0207E/AMPAK1';
-			urlKonj='http://prognos.konj.se/PXWeb/api/v1/sv/SenastePrognosen/f21_arbetsmarknad/F2101.px';
+			urlKonj='http://api.scb.se/OV0104/v1/doris/sv/ssd/START/FM/FM0103/FM0103A/FirENS2010ofKv';
 
 			bibl='work';
 
-			px.getData(url1, bibl);
+			px.getData(url4, bibl);
 		end;
 	enddata;
 run;quit;
