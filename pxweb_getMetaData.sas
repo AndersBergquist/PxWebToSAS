@@ -18,6 +18,8 @@ proc ds2;
 		declare package &prgLib..pxweb_GemensammaMetoder g();
 		declare package hash h_metaData();
 		declare package hiter hi_metaData(h_metaData);
+		declare package hash h_finnsTid();
+		declare package hiter hi_finnsTid(h_finnsTid);
 		declare package hash h_dataStorlek();
 		declare package hiter hi_dataStorlek(h_dataStorlek);
 		declare package hash h_dimensionerSum();
@@ -25,17 +27,20 @@ proc ds2;
 		declare package hash h_contentSum();
 		declare package hiter hi_contentSum(h_contentSum);
 		declare integer radNr antal antalCeller cellerPerValue antalVar numItem;
-		declare nvarchar(250) title code text values valueTexts elimination "time" subCode oldCode;
+		declare nvarchar(250) title code text values valueTexts elimination "time" subCode oldCode tidvar tidData;
 
-		forward getJsonMeta parseJsonMeta printData skapaMetadataSamling skapaFrageStorlek;
+		forward getJsonMeta parseJsonMeta printData skapaMetadataSamling skapaFrageStorlek deleteExistingObs;
 		method pxweb_getMetaData();
 		end;
 
 		method getData(nvarchar(500) iUrl, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
 			declare nvarchar(500000) respons;
+			declare nvarchar(125) metaTemp;
 			respons=g.getData(iUrl);
 			parseJsonMeta(respons, maxCells, fullTabellNamn, tmpTable);
 			sqlexec('create table work.meta_' || tmpTable || ' as select title, code, text, "values", valueTexts, elimination, "time" from work.parse_' || tmpTable );
+			metaTemp='work.meta_' || tmpTable;
+			deleteExistingObs(fullTabellNamn, metaTemp);
 			sqlexec('drop table work.parse_' || tmpTable);
 			skapaMetadataSamling(tmpTable);
 			skapaFrageStorlek(maxCells);
@@ -217,6 +222,7 @@ proc ds2;
 				end;
 				radNr=radNr+1;
 			end;
+
 		end;
 
 
@@ -316,7 +322,28 @@ proc ds2;
 
 		end;*parseJsonMeta;
 
+		method deleteExistingObs(nvarchar(41) fullTabellNamn, nvarchar(42) metaTemp);
+			declare package sqlstmt s_tidvar;
+			declare integer rc;
+			if g.finnsTabell(fullTabellNamn)=1 then do;
+				s_tidvar = _new_ sqlstmt('select distinct code from ' || metaTemp || ' where "time"=''true''');
+				s_tidvar.execute();
+				s_tidvar.bindresults([tidvar]);
+				s_tidvar.fetch();
+				s_tidvar.delete();
+				
+				h_finnsTid.keys([tidData]);
+				h_finnsTid.data([tidData]);
+				h_finnsTid.dataset('{select distinct ' || strip(tidvar) || '_cd as tidData from ' || fullTabellNamn || '}');
+				h_finnsTid.defineDone();
 
+				rc=hi_finnsTid.first([tidData]);
+				do until(hi_finnsTid.next([tidData]));
+					sqlexec('delete from ' || metaTemp || ' where "values"=''' || strip(tidData) || ''' and "time"=''true''');
+				end;
+			end;
+		
+		end;*deleteExistingObs;
 
 	endpackage;
 run;quit;
