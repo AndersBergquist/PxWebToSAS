@@ -29,8 +29,8 @@ proc ds2;
 			getMetaData.getData(iURL, maxCells, fullTabellNamn, tmpTable);
 			skapaSubFraga(tmpTable);
 			skapaFragehash(tmpTable);
-			countRows(tmpTable);
-			sqlexec('drop table work.sub_' || tmpTable);
+*			countRows(tmpTable);
+*			sqlexec('drop table work.sub_' || tmpTable);
 			antalCells=getMetadata.getAntalCeller();
 			return antalCells;
 		end;
@@ -166,10 +166,6 @@ proc ds2;
 			s_countJsonFragor.execute();
 			s_countJsonFragor.fetch([numJsonFragor]);
 			s_countJsonFragor.delete();
-		end;
-		method getNumItems()returns integer ;
-
-			return numJsonFragor;
 		end;
 
 	endpackage;
