@@ -113,8 +113,8 @@ proc ds2;
 				else sqlexec('SELECT * INTO ' || fullTabellNamn || ' FROM work.' || tmpTable || '');
 
 				if g.finnsTabell('work.' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.' || tmpTable);
-			/*	if g.finnsTabell('work.meta_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
-			*/	if g.finnsTabell('work.json_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.json_' || tmpTable || ';');
+				if g.finnsTabell('work.meta_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
+				if g.finnsTabell('work.json_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.json_' || tmpTable || ';');
 				ud=rc;
 			end;
 			else do;
