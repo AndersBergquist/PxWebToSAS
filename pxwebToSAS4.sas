@@ -21,7 +21,7 @@ proc ds2;
 
 		method pxwebtosas4();
 			defaultMaxCells=100000;
-			vstring='pxwebToSAS version 4.0.0.B14';
+			vstring='pxwebToSAS version 4.0.0.B15';
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(nvarchar(500) inUrl) returns integer;
