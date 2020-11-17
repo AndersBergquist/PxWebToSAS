@@ -338,8 +338,10 @@ proc ds2;
 				h_finnsTid.defineDone();
 
 				rc=hi_finnsTid.first([tidData]);
-				do until(hi_finnsTid.next([tidData]));
-					sqlexec('delete from ' || metaTemp || ' where "values"=''' || strip(tidData) || ''' and "time"=''true''');
+				if rc=0 then do;
+					do until(hi_finnsTid.next([tidData]));
+						sqlexec('delete from ' || metaTemp || ' where "values"=''' || strip(tidData) || ''' and "time"=''true''');
+					end;
 				end;
 			end;
 		
