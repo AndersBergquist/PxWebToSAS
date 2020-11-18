@@ -1,7 +1,7 @@
 /****************************************
 Program: pxwebToSAS4
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
-Version: 4.0.13
+Version: 4.0.0
 
 - output:
 	1. Lämnar returkod till 0 om uppdatering genomförts och 1 om den inte genomförts.
@@ -20,8 +20,8 @@ proc ds2;
 		forward getDataStart;
 
 		method pxwebtosas4();
-			defaultMaxCells=100000;
-			vstring='pxwebToSAS version 4.0.0.B15';
+			defaultMaxCells=150000;
+			vstring='pxwebToSAS version 4.0.0.B16';
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(nvarchar(500) inUrl) returns integer;
