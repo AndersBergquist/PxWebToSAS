@@ -3,8 +3,8 @@ Program: pxweb_skapaStmtFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 4.0.10
 Uppgift:
-- Skapar en fråga som används av sqlstmt för att uppdatera output tabellen med hämtad data.
-Innehåller:
+- Skapar en frÃ¥ga som anvÃ¤nds av sqlstmt fÃ¶r att uppdatera output tabellen med hÃ¤mtad data.
+InnehÃ¥ller:
 ***********************************/
 
 proc ds2;
@@ -32,7 +32,7 @@ proc ds2;
 
 			end;
 			do until(j.ISRIGHTBRACKET(tokenType));
-				type='d'; *Kollar senare om denna behövs;
+				type='d'; *Kollar senare om denna behÃ¶vs;
 				do until(j.isrightbrace(tokenType));
 					if trim(token)='code' then do;
 						j.getNextToken(rc,token,tokenType,parseFlags);
@@ -77,7 +77,7 @@ proc ds2;
 					sqlInsert=sqlInsert || code || '_cd' || ', ' ||code || '_nm';
 					sqlValues=sqlValues || '?, ?';
 					d=d+2;
-					if lowCase(text) in ('år', 'vartannat år', 'kvartal', 'månad') then do;
+					if lowCase(text) in ('Ã¥r', 'vartannat Ã¥r', 'kvartal', 'mÃ¥nad') then do;
 						sqlInsert=sqlInsert || ', ' || code || '_dt';
 						sqlValues=sqlValues || ', ?';
 						d=d+1;

@@ -41,7 +41,7 @@ proc ds2;
 
 			h_metadata.keys([title code text "time" elimination]);
 			h_metadata.data([title code text "time" elimination len_values len_valueTexts]);
-			h_metadata.dataset('{select title, code, text, "time", elimination, max(CHARACTER_LENGTH(trim("values"))) as len_values, max(CHARACTER_LENGTH(trim(valueTexts))) as len_valueTexts from work.meta_' || tmpTable ||' where trim(code) ^= ''ContentsCode'' group by title, code, text, "time", elimination}');
+			h_metadata.dataset('{select title, code, text, "time", elimination, max(OCTET_LENGTH(trim("values"))) as len_values, max(OCTET_LENGTH(trim(valueTexts))) as len_valueTexts from work.meta_' || tmpTable ||' where trim(code) ^= ''ContentsCode'' group by title, code, text, "time", elimination}');
 			h_metadata.ordered('A');
 			h_metadata.defineDone();
 
