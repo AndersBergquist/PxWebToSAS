@@ -90,10 +90,10 @@ proc ds2;
 		end;*skapaTabell;
 
 		method identifieraTidsvariabler(nvarchar(250) tidTyp, nvarchar(250) code, nvarchar(250) text, integer len_Values, integer len_valueTexts, in_out nvarchar tidString);
-			if lowCase(tidTyp) in ('år', 'vartannat år', 'kvartal', 'månad') then do;
-					if lowCase(tidTyp) in ('år', 'vartannat år') then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format year4.';
+			if lowCase(tidTyp) in ('år', 'vartannat år', 'kvartal', 'månad', '�r', 'vartannat �r', 'm�nad') then do;
+					if lowCase(tidTyp) in ('år', 'vartannat år', '�r', 'vartannat �r') then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format year4.';
 					else if lowCase(tidTyp)='kvartal' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yyq6.';
-					else if lowCase(tidTyp)='månad' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yymmd7.';				
+					else if lowCase(tidTyp) in ('månad', 'm�nad') then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yymmd7.';				
 					tidString=tidString || ',' || strip(code) || '_cd varchar(' || len_Values || ') having label ''' || trim(text) || '''';
 					tidString=tidString || ',' || strip(code) || '_nm varchar(' || len_ValueTexts || ') having label ''' || trim(text) || '''';
 			end;
