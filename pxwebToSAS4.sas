@@ -20,7 +20,7 @@ proc ds2;
 		forward getDataStart;
 
 		method pxwebtosas4();
-			defaultMaxCells=150000;
+			defaultMaxCells=100000;
 			vstring='pxwebToSAS version 4.0.0.B16UTF8';
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
