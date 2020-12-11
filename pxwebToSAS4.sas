@@ -21,7 +21,7 @@ proc ds2;
 
 		method pxwebtosas4();
 			defaultMaxCells=100000;
-			vstring='pxwebToSAS version 4.0.0.B16';
+			vstring='pxwebToSAS version 4.0.0.B17';
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(nvarchar(500) inUrl) returns integer;
@@ -90,6 +90,7 @@ proc ds2;
 			fullTabellNamn=SASLib || '.' || SASTabell;
 			tableUpdated=SCB_Date.getSCBDate(iUrl);
 			dbUpdate=SCB_Date.getDBDate(fullTabellNamn);
+put tableUpdated= dbUpdate=;
 			if dbUpdate < tableUpdated then do;
 				antalCeller=SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn, tmpTable);
 				s_jsonGet = _new_ sqlstmt('select strip(jsonFraga) as jsonFraga from work.json_' || tmpTable);
