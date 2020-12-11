@@ -3,8 +3,8 @@ Program: pxweb_Skapa_Input_Tabell.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 4.0.12
 Uppgift:
-- Skapar en tabell dÃ¤r indata frÃ¥n SCB lagras.
-InnehÃ¥ller:
+- Skapar en tabell där indata från SCB lagras.
+Innehåller:
 ***********************************/
 
 proc ds2;
@@ -41,7 +41,7 @@ proc ds2;
 
 			h_metadata.keys([title code text "time" elimination]);
 			h_metadata.data([title code text "time" elimination len_values len_valueTexts]);
-			h_metadata.dataset('{select title, code, text, "time", elimination, max(OCTET_LENGTH(trim("values"))) as len_values, max(OCTET_LENGTH(trim(valueTexts))) as len_valueTexts from work.meta_' || tmpTable ||' where trim(code) ^= ''ContentsCode'' group by title, code, text, "time", elimination}');
+			h_metadata.dataset('{select title, code, text, "time", elimination, max(CHARACTER_LENGTH(trim("values"))) as len_values, max(CHARACTER_LENGTH(trim(valueTexts))) as len_valueTexts from work.meta_' || tmpTable ||' where trim(code) ^= ''ContentsCode'' group by title, code, text, "time", elimination}');
 			h_metadata.ordered('A');
 			h_metadata.defineDone();
 
@@ -50,8 +50,8 @@ proc ds2;
 			h_content.dataset('{select trim("values") as "values", trim(valueTexts) as valueTexts from work.meta_' || tmpTable ||' where trim(code) = ''ContentsCode''}');
 			h_content.defineDone();
 
-*********** TÃ¤nk pÃ¥: variabelnamn som inte Ã¤r alphanumeriskt skall skrivas ''variablenamn''n En check mÃ¥ste gÃ¶ras;
-*********** GÃ¶r det allmÃ¤nt;
+*********** Tänk på: variabelnamn som inte är alphanumeriskt skall skrivas ''variablenamn''n En check måste göras;
+*********** Gör det allmänt;
 
 			rc=hi_metadata.first([title code text "time" elimination len_values len_valueTexts]);
 			if anydigit(strip(code))=1 then code = '_' || strip(code);
@@ -84,16 +84,16 @@ proc ds2;
 				if anydigit(strip(values))=1 then values = '_' || strip(values);
 				sqlfraga=sqlfraga || ', ' || values || ' double having label ''' || valueTexts || '''';
 			end;
-			sqlfraga=sqlfraga || ', UPPDATERAT_DTTM timestamp having label ''Tid fÃ¶r dataladdning'' format datetime16. )';
+			sqlfraga=sqlfraga || ', UPPDATERAT_DTTM timestamp having label ''Tid för dataladdning'' format datetime16. )';
 			sqlExec(sqlfraga);
 
 		end;*skapaTabell;
 
 		method identifieraTidsvariabler(nvarchar(250) tidTyp, nvarchar(250) code, nvarchar(250) text, integer len_Values, integer len_valueTexts, in_out nvarchar tidString);
-			if lowCase(tidTyp) in ('Ã¥r', 'vartannat Ã¥r', 'kvartal', 'mÃ¥nad', 'år', 'vartannat år', 'månad') then do;
-					if lowCase(tidTyp) in ('Ã¥r', 'vartannat Ã¥r', 'år', 'vartannat år') then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format year4.';
+			if lowCase(tidTyp) in ('år', 'vartannat år', 'kvartal', 'månad') then do;
+					if lowCase(tidTyp) in ('år', 'vartannat år') then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format year4.';
 					else if lowCase(tidTyp)='kvartal' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yyq6.';
-					else if lowCase(tidTyp) in ('mÃ¥nad', 'månad') then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yymmd7.';				
+					else if lowCase(tidTyp)='månad' then tidString=strip(code) || '_dt date having label ''' || trim(text) || ''' format yymmd7.';				
 					tidString=tidString || ',' || strip(code) || '_cd varchar(' || len_Values || ') having label ''' || trim(text) || '''';
 					tidString=tidString || ',' || strip(code) || '_nm varchar(' || len_ValueTexts || ') having label ''' || trim(text) || '''';
 			end;

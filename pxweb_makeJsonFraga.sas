@@ -1,9 +1,9 @@
-Ôªø/****************************************
+/****************************************
 Program: pxweb_makeJsonFraga.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 4.0.13
 Uppgift:
-- Skapar json-fr√•ga till datah√§mtning och lagrar fr√•gorna i filen work.json_tmpTabell;
+- Skapar json-frÂga till datah‰mtning och lagrar frÂgorna i filen work.json_tmpTabell;
 ***********************************/
 proc ds2;
 	package &prgLib..pxweb_makeJsonFraga / overwrite=yes;
@@ -54,7 +54,7 @@ proc ds2;
 			s_subFragorFind = _new_ sqlstmt('select strip(subCode) as subCode, strip(subFraga) as subFraga from work.sub_' || tmpTable || ' WHERE subCode=?',[subCode]);
 
 			subCode=getMetaData.getLevelCode(deep);
-        ** L√§ser in fr√•gorna till vektor. Start **;
+        ** L‰ser in frÂgorna till vektor. Start **;
 			antalFragor=0;
 			s_subFragorFind.execute();
 			s_subFragorFind.bindresults([subCode, subFraga]);
@@ -65,7 +65,7 @@ proc ds2;
 				rc=s_subFragorFind.fetch();
 			end;
 			s_subFragorFind.delete();
-        ** L√§ser in fr√•gorna till vektor. Slut **;
+        ** L‰ser in frÂgorna till vektor. Slut **;
 			do k=1 to antalFragor;
 				if deep=1 then do;
 					local_qstring=v_qstring[k];
@@ -113,7 +113,7 @@ proc ds2;
 					end;
 					s_loopMetadata.delete();
 				end;
-				* Delm√§ngd av variabler v√§ljs;
+				* Delm‰ngd av variabler v‰ljs;
 				else do;
 					rundaNr=0;
 					stubFraga='{"code":"' || strip(subCode) || '", "selection":{"filter":"item", "values":[';
@@ -158,8 +158,8 @@ proc ds2;
 			end;
 			s_subFragor.delete();
 		end;*skapaSubFraga;
-* Ett antal metoder f√∂r att kunna h√§mta jsonfr√•gor fr√•n packetet;
-*** H√§mtar f√∂rsta fr√•ga;
+* Ett antal metoder fˆr att kunna h‰mta jsonfrÂgor frÂn packetet;
+*** H‰mtar fˆrsta frÂga;
 		method countRows(varchar(32) tmpTable);
 		declare integer x;
 			s_countJsonFragor = _new_ sqlstmt('select count(*) as numJsonFragor from work.json_' || tmpTable);

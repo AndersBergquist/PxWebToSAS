@@ -1,14 +1,14 @@
-Ôªø/****************************************
+/****************************************
 Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Andeputrs Bergquist, anders@fambergquist.se
 Version: 4.0.12
 Uppgift:
-- Samla metoder som anv√§nds av flera packet.
-Inneh√•ller:
-- getData; getData(iURL), h√§mtar en responsfil fr√•n pxWeb med hj√§lp av Get.
+- Samla metoder som anv‰nds av flera packet.
+InnehÂller:
+- getData; getData(iURL), h‰mtar en responsfil frÂn pxWeb med hj‰lp av Get.
 - finnsTabell, finnsTabell(iLib, iTabell), returnerar 0 om tabell ej finns och 1 om tabell finns.
-- getSenasteTid, getSenasteTid(fulltTabellnamn), returnerar senaste tiden f√∂r data i tabellen. 0 om tabellen inte finns.
-- kollaVariabelNamn, kollaVariabelNamn(in_out varchar code), l√§gger till _ om f√∂rsta tecknet i columnnmanet √§r ett tal.;
+- getSenasteTid, getSenasteTid(fulltTabellnamn), returnerar senaste tiden fˆr data i tabellen. 0 om tabellen inte finns.
+- kollaVariabelNamn, kollaVariabelNamn(in_out varchar code), l‰gger till _ om fˆrsta tecknet i columnnmanet ‰r ett tal.;
 ***********************************/
 
 
@@ -17,7 +17,7 @@ proc ds2;
 		declare package http pxwebContent();
 		declare nvarchar(8) lib;
 		declare nvarchar(32) tabell tid maxTid;
-		declare nvarchar(15000000) respons;
+		declare nvarchar(30000000) respons;
 		declare integer antal ctid;
 
 		forward finnsTabellHelper;
@@ -26,7 +26,7 @@ proc ds2;
 
 		end;
 
-		method getData(nvarchar(500) iUrl) returns nvarchar(500000);*H√§mtar metadata fr√•n SCB;
+		method getData(nvarchar(500) iUrl) returns nvarchar(500000);*H‰mtar metadata frÂn SCB;
 		declare integer sc rc;
 		declare nvarchar(500) catalogURL x;
 
@@ -42,7 +42,7 @@ proc ds2;
 		return respons;
 		end;
 
-		method getData(nvarchar(500) iUrl, nvarchar(100000) jsonFraga) returns nvarchar(15000000);
+		method getData(nvarchar(500) iUrl, nvarchar(100000) jsonFraga) returns nvarchar(30000000);
 			declare integer sc rc;
 			declare char(10) resp;
 			pxwebContent.createPostMethod(iUrl);
@@ -54,7 +54,7 @@ proc ds2;
 				pxwebContent.getResponseBodyAsString(respons, rc);
 				if substr(respons,length(respons)-7)^='"SCB"}]}' then put respons;
 				if rc=1 then do;
-					respons='pxweb_GemensammaMetoder.getData(post): N√•got gick fel f√∂r att responsstr√§ngen kunde inte hittas. Error: 111';
+					respons='pxweb_GemensammaMetoder.getData(post): NÂgot gick fel fˆr att responsstr‰ngen kunde inte hittas. Error: 111';
 				end;
 			end;
 			else do;

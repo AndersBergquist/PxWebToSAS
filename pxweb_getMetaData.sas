@@ -1,10 +1,10 @@
-ï»¿/****************************************
+/****************************************
 Program: pxweb_getMetaData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 4.0.12
 Uppgift:
-- HÃ¤mtar metadata frÃ¥n SCB/PX-Web.
-FÃ¶ljande externa metoder finns;
+- Hämtar metadata från SCB/PX-Web.
+Följande externa metoder finns;
 - metaDataFirst(in_out varchar(250) io_title, in_out varchar(250) io_code, in_out varchar(250) io_text, in_out varchar(250) io_values, in_out varchar(250) io_valueTexts, in_out varchar(250) io_elimination, in_out varchar(250) io_time)
 - metaDataNext(in_out varchar(250) io_title, in_out varchar(250) io_code, in_out varchar(250) io_text, in_out varchar(250) io_values, in_out varchar(250) io_valueTexts, in_out varchar(250) io_elimination, in_out varchar(250) io_time)
 - metaDataNumItem() returns integer
@@ -44,7 +44,7 @@ proc ds2;
 			skapaFrageStorlek(maxCells);
 		end;*skapaFraga;
 
-** Metoder fÃ¶r att hÃ¤mta data frÃ¥n package, start **;
+** Metoder för att hämta data från package, start **;
 		method getAntalCodes() returns integer;
 			declare integer antalCodes;
 			antalCodes=h_datastorlek.num_items;
@@ -83,7 +83,7 @@ proc ds2;
 			return antalFragor;
 		end;
 ** dataStorlek, start;
-	**************** VARFÃ–R BEHÃ–VS TVÃ… EX AV DESSA************************************;
+	**************** VARFÖR BEHÖVS TVÅ EX AV DESSA************************************;
 		method dataStorlekFirst(in_out nvarchar io_code, in_out integer io_radNr, in_out integer io_CellerPerValue);
 			hi_dataStorlek.first([code, radNr,CellerPerValue]);
 			io_code=code;
@@ -135,7 +135,7 @@ proc ds2;
 		end;
 ** datastorlek, slut;
 
-*** Metoder fÃ¶r att hÃ¤mta data ur hashtabellerna. start;
+*** Metoder för att hämta data ur hashtabellerna. start;
 ** metaData, start;
 		method metaDataFirst(in_out nvarchar io_title, in_out nvarchar io_code, in_out nvarchar io_text, in_out nvarchar io_values, in_out nvarchar io_valueTexts, in_out nvarchar io_elimination, in_out nvarchar io_time);
 			hi_metaData.first([title, code, text, values, valueTexts, elimination, "time"]);
@@ -163,7 +163,7 @@ proc ds2;
 		end;
 ** metaData, start;
 
-*** Metoder fÃ¶r att hÃ¤mta data ur hashtabellerna. slut;
+*** Metoder för att hämta data ur hashtabellerna. slut;
 		method skapaMetadataSamling(nvarchar(32) tmpTable);
 		declare integer rc qc;
 			h_dimensionerSum.keys([code]);
@@ -224,7 +224,7 @@ proc ds2;
 
 
 
-** Metoder fÃ¶r att hÃ¤mta data frÃ¥n package, slut **;
+** Metoder för att hämta data från package, slut **;
 
 		method parseJsonMeta(nvarchar(500000) iRespons, integer maxCells, nvarchar(41) fullTabellNamn, nvarchar(32) tmpTable);
 			declare package sqlstmt s_parseInsert();
@@ -234,7 +234,7 @@ proc ds2;
 			declare nvarchar(250) token;
 			declare nvarchar(25) senasteTid;
 			declare integer rc tokenType parseFlags tmpCeller divisor rc qc;
-*Senaste tid Ã¤r dÃ¤r laghÃ¤mtningen ska styras ifrÃ¥n. Bra att redan nu hÃ¤mtas bara senate data.;
+*Senaste tid är där laghämtningen ska styras ifrån. Bra att redan nu hämtas bara senate data.;
 			senasteTid=g.getSenasteTid(fullTabellNamn);
 			antalCeller=1;
 			sqlexec('create table work.parse_' || tmpTable || ' (radNr integer, title nvarchar(250), code nvarchar(250), text nvarchar(250), "values" nvarchar(250), valueTexts nvarchar(250), elimination nvarchar(250), "time" nvarchar(250))');

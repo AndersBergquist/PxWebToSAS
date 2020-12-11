@@ -3,8 +3,8 @@ Program: pxweb_getData.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 4.0.10
 Uppgift:
-- H√§mtar SCB:s Json, tolkar den och l√§gger resultatet i en tabell.
-Inneh√•ller:
+- H‰mtar SCB:s Json, tolkar den och l‰gger resultatet i en tabell.
+InnehÂller:
 ***********************************/
 
 proc ds2;
@@ -28,7 +28,7 @@ proc ds2;
 			s_updateTmpTable_exist=0;
 		end;
 		method hamtaData(nvarchar(500) iUrl, nvarchar(100000) jsonFraga, nvarchar(32) tmpTable, nvarchar(40) fullTabellNamn) returns integer;
-			declare nvarchar(15000000) respons;
+			declare nvarchar(30000000) respons;
 			declare nvarchar(150) loadMetadata;
 			declare integer tmpTableFinns fullTabellFinns p i;
 			tmpTableFinns=g.finnsTabell('work', tmpTable);
@@ -59,7 +59,7 @@ proc ds2;
 			return returnCode;
 		end;
 
-		method parseSCBRespons(nvarchar(15000000) iRespons, nvarchar(32) tmpTable) returns integer;
+		method parseSCBRespons(nvarchar(30000000) iRespons, nvarchar(32) tmpTable) returns integer;
 			declare package json j();
 			declare integer rc tokenType parseFlags i sc returnCode;
 			declare double tid_dt;
@@ -110,7 +110,7 @@ proc ds2;
 								i=i+1;
 								sc=s_updateTmpTable.setvarchar(i, valueTexts);
 								i=i+1;
-								if dtype='t' and lowCase(kolTexts) in ('√•r', 'vartannat √•r', 'kvartal', 'm√•nad','Âr', 'vartannat Âr', 'mÂnad') then do;
+								if dtype='t' and lowCase(kolTexts) in ('Âr', 'vartannat Âr', 'kvartal', 'mÂnad') then do;
 									tid_dt=cretateTidsvariabler(values, kolTexts);
 									sc=s_updateTmpTable.setdouble(i, tid_dt);
 									i=i+1;
@@ -123,13 +123,11 @@ proc ds2;
 							if rc=0 then j.getNextToken(rc, token, tokenType, parseFlags);
 							if j.ISLEFTBRACKET(tokenType) then j.getNextToken(rc, token, tokenType, parseFlags);
 							do until(j.ISRIGHTBRACKET(tokenType)or rc^=0);
-*Ser till att .. eller n.a. blir missing		if notdigit(token)=1 then token=.;
-*Ers√§tter ovan s√• - blir tal; *  if notdigit(compress(token,'+-','d'))=1 then token=.;
-								if compress(token) in ('..' 'n.a.' 'na') then token=.;
+*SEr till att .. eller n.a. blir missing		if notdigit(token)=1 then token=.;
+*Ers‰tter ovan sÂ - blir tal;   if notdigit(compress(token,'+-','d'))=1 then token=.;
 								sc=s_updateTmpTable.setdouble(i, token);
 								i=i+1;
 								c_index=c_index+1;
-*put c_index= token=;
 								j.getNextToken(rc, token, tokenType, parseFlags);
 							end;
 							if rc=0 then do;
@@ -140,9 +138,9 @@ proc ds2;
 					end;
 				end;
 				if rc=0 or rc=100 then j.getNextToken(rc, token, tokenType, parseFlags);
-				else if rc= 100 then put 'Token l√§ngre √§n mottagande variablel√§ngt. Returkod:' rc;
-				else if rc = 300 then put 'Datafilen var korrupt, troligen f√∂r stor. Returkoden: ' rc;
-				else if rc = 301 then put 'Ett fel intr√§ffade n√§r texten l√§stes. Returkoden: ' rc;
+				else if rc= 100 then put 'Token l‰ngre ‰n mottagande variablel‰ngt. Returkod:' rc;
+				else if rc = 300 then put 'Datafilen var korrupt, troligen fˆr stor. Returkoden: ' rc;
+				else if rc = 301 then put 'Ett fel intr‰ffade n‰r texten l‰stes. Returkoden: ' rc;
 			end;
 		returnCode=rc;
 		return returnCode;
@@ -151,13 +149,13 @@ proc ds2;
 		method cretateTidsvariabler(nvarchar(250) tid_cd, nvarchar(250) tid_nm) returns double;
 		declare double manad ar tid_dt;
 			ar=substr(tid_cd,1,4);
-			if lowCase(tid_nm) in ('√•r', 'vartannat √•r', 'Âr', 'vartannat Âr')  then do;
+			if lowCase(tid_nm) in ('Âr', 'vartannat Âr')  then do;
 				manad=1;
 			end;
 			else if lowCase(tid_nm) = 'kvartal' then do;
 				manad=substr(tid_cd,6,1)*3-2;
 			end;
-			else if lowCase(tid_nm) in ('m√•nad', 'mÂnad') then do;
+			else if lowCase(tid_nm) = 'mÂnad' then do;
 				manad=substr(tid_cd,6,2);
 			end;
 			tid_dt=mdy(manad,1,ar);
