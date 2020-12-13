@@ -21,7 +21,7 @@ proc ds2;
 
 		method pxwebtosas4();
 			defaultMaxCells=100000;
-			vstring='pxwebToSAS version 4.0.0.B17';
+			vstring='pxwebToSAS version 4.0.0.B18';
 		end;
 ******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(nvarchar(500) inUrl) returns integer;
@@ -90,7 +90,6 @@ proc ds2;
 			fullTabellNamn=SASLib || '.' || SASTabell;
 			tableUpdated=SCB_Date.getSCBDate(iUrl);
 			dbUpdate=SCB_Date.getDBDate(fullTabellNamn);
-put tableUpdated= dbUpdate=;
 			if dbUpdate < tableUpdated then do;
 				antalCeller=SCB_GetJsonFraga.skapaFraga(iUrl, maxCells, fullTabellNamn, tmpTable);
 				s_jsonGet = _new_ sqlstmt('select strip(jsonFraga) as jsonFraga from work.json_' || tmpTable);
@@ -116,7 +115,8 @@ put tableUpdated= dbUpdate=;
 				if g.finnsTabell('work.' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.' || tmpTable);
 				if g.finnsTabell('work.meta_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.meta_' || tmpTable || ';');
 				if g.finnsTabell('work.json_' || tmpTable) ^= 0 then sqlexec('DROP TABLE work.json_' || tmpTable || ';');
-				ud=rc;
+
+			ud=rc;
 			end;
 			else do;
 				put 'pxWebToSAS.getDataStart: Det finns ingen uppdatering till' fullTabellNamn;

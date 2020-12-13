@@ -101,7 +101,7 @@ proc ds2;
 					s_loopMetadata.execute();
 					s_loopMetadata.bindresults([title, code, text, values, valueTexts, elimination, "time"]);
 					s_loopMetadata.fetch();
-					do until(iMetaData=sizeMetaData);
+					do until(iMetaData>sizeMetaData);*Annars kommer inte sista observationen med;
 						if subCode=code then do;
 							stubFraga='{"code":"' || strip(subCode) || '", "selection":{"filter":"item", "values":["';
 							subFraga=stubFraga || strip(values) || '"';
