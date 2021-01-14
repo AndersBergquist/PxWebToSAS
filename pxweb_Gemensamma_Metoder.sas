@@ -3,12 +3,12 @@ Program: pxweb_GemensammaMetoder.sas
 Upphovsperson: Andeputrs Bergquist, anders@fambergquist.se
 Version: 4.0.12
 Uppgift:
-- Samla metoder som används av flera packet.
-Innehåller:
-- getData; getData(iURL), hämtar en responsfil från pxWeb med hjälp av Get.
+- Samla metoder som anvÃ¤nds av flera packet.
+InnehÃ¥ller:
+- getData; getData(iURL), hÃ¤mtar en responsfil frÃ¥n pxWeb med hjÃ¤lp av Get.
 - finnsTabell, finnsTabell(iLib, iTabell), returnerar 0 om tabell ej finns och 1 om tabell finns.
-- getSenasteTid, getSenasteTid(fulltTabellnamn), returnerar senaste tiden för data i tabellen. 0 om tabellen inte finns.
-- kollaVariabelNamn, kollaVariabelNamn(in_out varchar code), lägger till _ om första tecknet i columnnmanet är ett tal.;
+- getSenasteTid, getSenasteTid(fulltTabellnamn), returnerar senaste tiden fÃ¶r data i tabellen. 0 om tabellen inte finns.
+- kollaVariabelNamn, kollaVariabelNamn(in_out varchar code), lÃ¤gger till _ om fÃ¶rsta tecknet i columnnmanet Ã¤r ett tal.;
 ***********************************/
 
 
@@ -26,7 +26,7 @@ proc ds2;
 
 		end;
 
-		method getData(nvarchar(500) iUrl) returns nvarchar(500000);*Hämtar metadata från SCB;
+		method getData(nvarchar(500) iUrl) returns nvarchar(500000);*HÃ¤mtar metadata frÃ¥n SCB;
 		declare integer sc rc;
 		declare nvarchar(500) catalogURL x;
 
@@ -54,7 +54,7 @@ proc ds2;
 				pxwebContent.getResponseBodyAsString(respons, rc);
 				if substr(respons,length(respons)-7)^='"SCB"}]}' then put respons;
 				if rc=1 then do;
-					respons='pxweb_GemensammaMetoder.getData(post): Något gick fel för att responssträngen kunde inte hittas. Error: 111';
+					respons='pxweb_GemensammaMetoder.getData(post): NÃ¥got gick fel fÃ¶r att responsstrÃ¤ngen kunde inte hittas. Error: 111';
 				end;
 			end;
 			else do;

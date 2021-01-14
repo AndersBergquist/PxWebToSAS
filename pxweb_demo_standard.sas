@@ -18,8 +18,7 @@ proc ds2;
 
 			bibl='work';
 
-			px.getData(url4, bibl);
+			px.getData(url1, bibl);
 		end;
 	enddata;
 run;quit;
-

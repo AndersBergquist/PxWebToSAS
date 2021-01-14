@@ -3,7 +3,7 @@ Program: pxWeb_table_update_date.sas
 Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 4.0.9
 Uppgift:
-- Hämtar datum från tabellens uppdatering på SCB/PxWeb-site, returnerar resultatet.
+- HÃ¤mtar datum frÃ¥n tabellens uppdatering pÃ¥ SCB/PxWeb-site, returnerar resultatet.
 ***********************************/
 
 
@@ -31,7 +31,7 @@ proc ds2;
 				dtime=dhms(datum,put(substr(datetext,12,2),2.),put(substr(datetext,15,2),2.),put(substr(datetext,18,2),2.));
 			end;
 			else do;
-				put 'getSCBDate: Något gick fel och processen kunde inte fortsätta';
+				put 'getSCBDate: NÃ¥got gick fel och processen kunde inte fortsÃ¤tta';
 			end;
 		return dtime;
 		end; *getSCBDate;;
@@ -46,7 +46,7 @@ proc ds2;
 			tableName=scan(iUrl,-1,'/');
 			updateDatum='';
 			rc=j.createParser(respons);
-* Härr börrjar en loop som letar datum i resonsfilen;
+* HÃ¤rr bÃ¶rrjar en loop som letar datum i resonsfilen;
 			do while (rc=0);
 				j.getNextToken(rc, token, tokenType, parseFlags);
 				if token='id' then do;
@@ -61,7 +61,7 @@ proc ds2;
 					end;
 				end;
 			end;
-* Härr slutar loopen;
+* HÃ¤rr slutar loopen;
 			return updateDatum;
 		end;*extractSCBDate;
 
