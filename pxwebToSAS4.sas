@@ -4,7 +4,7 @@ Upphovsperson: Anders Bergquist, anders@fambergquist.se
 Version: 4.0.0
 
 - output:
-	1. L�nmnar returkod till 0 om uppdatering genomförts och 1 om den inte genomförts.
+	1. Länmnar returkod till 0 om uppdatering genomförts och 1 om den inte genomfÃ¶rts.
 ***********************************/
 proc ds2;
 	package &prgLib..pxWebToSAS4 / overwrite=yes;
@@ -23,7 +23,7 @@ proc ds2;
 			defaultMaxCells=100000;
 			vstring='pxwebToSAS version 4.0.0.B18_URF8';
 		end;
-******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
+******** getData varianter fär att göra det så flexibelt som möjligt att hämta data. start;
 		method getData(nvarchar(500) inUrl) returns integer;
 			declare nvarchar(8) libname;
 			declare nvarchar(32) SASTabell tmpTable;
@@ -72,7 +72,7 @@ proc ds2;
 			return upd;
 		end;
 
-******** getData varianter för att göra det så flexibelt som möjligt att hämta data. start;
+******** getData varianter fÃ¶r att gÃ¶ra det sÃ¥ flexibelt som mÃ¶jligt att hÃ¤mta data. start;
 
 		method getDataStart(nvarchar(500) iUrl, nvarchar(8) SASLib, nvarchar(32) SASTabell, integer maxCells, nvarchar(32) tmpTable) returns integer;
 			declare package hash h_jsonFragor();
@@ -125,12 +125,12 @@ proc ds2;
 			runtime=time()-starttid;
 			cellerSek=divide(antalCeller,runtime);
 			if runtime < 60 then do;
-				put antalCeller nlnum24.-l ' celler h�mtades p�' runTime 'sekunder vilket motsvarar ' cellerSek nlnum27.2-l ' celler per sekund. Returkod:' ud;
+				put antalCeller nlnum24.-l ' celler hämtades på' runTime 'sekunder vilket motsvarar ' cellerSek nlnum27.2-l ' celler per sekund. Returkod:' ud;
 			end;
 			else do;
 				min=int(runTime/60);
 				sek=mod(runTime,60);
-				put AntalCeller nlnum24.-l ' celler h�mtades p�' min 'minuter och ' sek 'sekunder vilket motsvarar ' cellerSek nlnum27.2-l ' celler per sekund. Returkod:' ud;
+				put AntalCeller nlnum24.-l ' celler hämtades på' min 'minuter och ' sek 'sekunder vilket motsvarar ' cellerSek nlnum27.2-l ' celler per sekund. Returkod:' ud;
 			end;
 			put vstring;
 			return ud;
