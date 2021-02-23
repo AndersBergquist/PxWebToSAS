@@ -112,7 +112,7 @@ proc ds2;
 				if g.finnsTabell(fullTabellNamn)^=0 then do;
 					sqlexec('CREATE TABLE work.nyData AS SELECT * FROM work.' || tmpTable  || ' EXCEPT SELECT * FROM ' || fullTabellNamn);
 					sqlexec('INSERT INTO ' || fullTabellNamn || ' select * from work.nydata');
-					sqlecec('DROP TABLE work.nyData');
+					sqlexec('DROP TABLE work.nyData');
 				end;
 				else sqlexec('SELECT * INTO ' || fullTabellNamn || ' FROM work.' || tmpTable || '');
 
